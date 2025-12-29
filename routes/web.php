@@ -38,6 +38,23 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
+
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
+
+Route::get('/bootstrap/make-me-admin', function () {
+    abort_unless(auth()->check(), 403);
+
+    // optional: require a secret token
+    abort_unless(request('token') && hash_equals(env('BOOTSTRAP_ADMIN_TOKEN'), request('token')), 403);
+
+    $user = auth()->user();
+    Role::firstOrCreate(['name' => 'Admin']);
+    $user->syncRoles(['Admin']);
+
+    return "OK: {$user->email} is now Admin";
+})->middleware(['auth', 'verified']);
+
     /*
     |--------------------------------------------------------------------------
     | Work Orders
