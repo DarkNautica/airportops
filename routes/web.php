@@ -172,7 +172,7 @@ require __DIR__ . '/auth.php';
 Route::get('/health', [HealthController::class, 'show'])->name('health');
 
 
-Route::get('/__make-admin', function () {
+Route::get('/make-admin', function () {
     $user = \App\Models\User::where('email', 'youremail@example.com')->first();
     $user->assignRole('admin');
     return 'done';
