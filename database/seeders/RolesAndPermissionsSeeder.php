@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
+use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -45,26 +46,32 @@ class RolesAndPermissionsSeeder extends Seeder
         $staff = Role::firstOrCreate(['name' => 'Ops Staff']);
         $viewer = Role::firstOrCreate(['name' => 'Viewer']);
 
-        // Admin gets everything
         $admin->syncPermissions($permissions);
 
-        // Supervisor: everything except role management (and optionally user delete)
         $supervisor->syncPermissions([
             'workorders.view','workorders.create','workorders.update','workorders.delete','workorders.assign',
             'inspections.view','inspections.create','inspections.update','inspections.delete','inspections.export',
             'users.view','users.create','users.update',
         ]);
 
-        // Staff: create/update, view, export, no deletes by default
         $staff->syncPermissions([
             'workorders.view','workorders.create','workorders.update',
             'inspections.view','inspections.create','inspections.update','inspections.export',
         ]);
 
-        // Viewer: read-only
         $viewer->syncPermissions([
             'workorders.view',
             'inspections.view',
         ]);
+
+        // ✅ Assign Admin to your live account (set this to YOUR email)
+        $email = env('jaydenlyricr@gmail.com');
+
+        if ($email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->syncRoles(['Admin']);
+            }
+        }
     }
 }
