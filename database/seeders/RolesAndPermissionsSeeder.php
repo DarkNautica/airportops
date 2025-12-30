@@ -28,6 +28,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'inspections.delete',
             'inspections.export',
 
+            // Audit Logs ✅ (this is the one you’re missing)
+            'audit.view',
+            'audit.export',
+
             // Users / Roles
             'users.view',
             'users.create',
