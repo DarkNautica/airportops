@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l app/Policies/NotamPolicy.php)",
+      "Bash(php -l app/Policies/PassAlongPolicy.php)",
+      "Bash(php -l app/Models/AuditLog.php)",
+      "Bash(php -l app/Http/Controllers/WorkOrderController.php)",
+      "Bash(php -l app/Http/Controllers/NotamController.php)",
+      "Bash(where php:*)",
+      "Read(//c/xampp/php/**)",
+      "Read(//c/laragon/bin/**)",
+      "Bash(php.bat -l app/Policies/NotamPolicy.php)",
+      "Bash(php.bat -l app/Policies/PassAlongPolicy.php)",
+      "Bash(php.bat -l app/Models/AuditLog.php)",
+      "Bash(php.bat -l app/Http/Controllers/WorkOrderController.php)",
+      "Bash(php.bat -l app/Http/Controllers/NotamController.php)",
+      "Bash(php.bat -l app/Enums/RoleName.php)",
+      "Bash(php.bat -l app/Models/User.php)",
+      "Bash(php.bat -l app/Models/Inspection.php)",
+      "Bash(php.bat -l app/Models/WorkOrder.php)",
+      "Bash(php.bat -l app/Models/Notam.php)"
+    ]
+  }
+}

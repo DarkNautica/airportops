@@ -5,10 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Notam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class NotamController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Notam::class, 'notam');
+    }
+
     public function index(Request $request)
     {
         $q        = trim((string) $request->get('q', ''));
@@ -54,17 +60,11 @@ class NotamController extends Controller
 
         $data['station'] = $data['station'] ?: 'KAVL';
 
-        // Generate NOTAM number (simple + reliable)
-        $next = (Notam::max('id') ?? 0) + 1;
-        $data['notam_number'] = 'NOTAM-' . str_pad((string)$next, 6, '0', STR_PAD_LEFT);
-
+        $data['notam_number'] = $this->nextNotamNumber();
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
 
         $notam = Notam::create($data);
-
-        // If you want audit logging like Inspections:
-        // \App\Observers\NotamObserver::logEvent('created', $notam);
 
         return redirect()->route('notams.show', $notam)->with('success', 'NOTAM created.');
     }
@@ -122,6 +122,8 @@ class NotamController extends Controller
 
     public function activate(Notam $notam)
     {
+        $this->authorize('activate', $notam);
+
         if ($notam->is_locked) {
             return redirect()->route('notams.show', $notam)->with('error', 'Locked NOTAM cannot be activated.');
         }
@@ -136,6 +138,8 @@ class NotamController extends Controller
 
     public function cancel(Notam $notam)
     {
+        $this->authorize('cancel', $notam);
+
         if ($notam->is_locked) {
             return redirect()->route('notams.show', $notam)->with('error', 'Locked NOTAM cannot be cancelled.');
         }
@@ -150,7 +154,8 @@ class NotamController extends Controller
 
     public function lock(Notam $notam)
     {
-        // If you want admin-only: gate/policy here
+        $this->authorize('lock', $notam);
+
         $notam->update([
             'is_locked' => true,
             'locked_at' => now(),
@@ -163,7 +168,8 @@ class NotamController extends Controller
 
     public function unlock(Notam $notam)
     {
-        // If you want admin-only: gate/policy here
+        $this->authorize('unlock', $notam);
+
         $notam->update([
             'is_locked' => false,
             'locked_at' => null,
@@ -172,5 +178,41 @@ class NotamController extends Controller
         ]);
 
         return redirect()->route('notams.show', $notam)->with('success', 'NOTAM unlocked.');
+    }
+
+    // -----------------------------
+    // Internal helpers
+    // -----------------------------
+
+    private function nextNotamNumber(): string
+    {
+        return DB::transaction(function () {
+            $row = DB::table('counters')
+                ->where('key', 'notams.notam_number')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$row) {
+                DB::table('counters')->insert([
+                    'key' => 'notams.notam_number',
+                    'value' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $row = (object) ['value' => 0];
+            }
+
+            $next = ((int) $row->value) + 1;
+
+            DB::table('counters')
+                ->where('key', 'notams.notam_number')
+                ->update([
+                    'value' => $next,
+                    'updated_at' => now(),
+                ]);
+
+            return 'NOTAM-' . str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+        }, 3);
     }
 }

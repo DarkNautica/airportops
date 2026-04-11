@@ -64,12 +64,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('inspections/{inspection}/pdf', [InspectionController::class, 'pdf'])
         ->name('inspections.pdf');
 
-    Route::get('inspections-print', [InspectionController::class, 'printIndex'])
-        ->name('inspections.printIndex');
-
-    Route::get('inspections-pdf', [InspectionController::class, 'pdfIndex'])
-        ->name('inspections.pdfIndex');
-
     /*
     |--------------------------------------------------------------------------
     | PASS ALONG
@@ -170,10 +164,3 @@ require __DIR__ . '/auth.php';
 |--------------------------------------------------------------------------
 */
 Route::get('/health', [HealthController::class, 'show'])->name('health');
-
-
-Route::get('/make-admin', function () {
-    $user = \App\Models\User::where('email', 'youremail@example.com')->first();
-    $user->assignRole('admin');
-    return 'done';
-});

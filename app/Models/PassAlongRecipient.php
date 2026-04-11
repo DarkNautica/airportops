@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PassAlongRecipient extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'pass_along_id','user_id','name','email',
         'queued_at','sent_at','status','message_id','error'

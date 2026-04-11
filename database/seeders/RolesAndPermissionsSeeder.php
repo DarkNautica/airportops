@@ -15,25 +15,27 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            // Work Orders
             'workorders.view',
             'workorders.create',
             'workorders.update',
             'workorders.delete',
             'workorders.assign',
-
-            // Inspections
             'inspections.view',
             'inspections.create',
             'inspections.update',
             'inspections.delete',
             'inspections.export',
-
-            // Audit Logs ✅ (this is the one you’re missing)
+            'notams.view',
+            'notams.create',
+            'notams.update',
+            'notams.delete',
+            'passalongs.view',
+            'passalongs.create',
+            'passalongs.update',
+            'passalongs.delete',
+            'passalongs.export',
             'audit.view',
             'audit.export',
-
-            // Users / Roles
             'users.view',
             'users.create',
             'users.update',
@@ -45,31 +47,63 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $perm]);
         }
 
-        $admin = Role::firstOrCreate(['name' => 'Admin']);
+        $admin      = Role::firstOrCreate(['name' => 'Admin']);
         $supervisor = Role::firstOrCreate(['name' => 'Ops Supervisor']);
-        $staff = Role::firstOrCreate(['name' => 'Ops Staff']);
-        $viewer = Role::firstOrCreate(['name' => 'Viewer']);
+        $staff      = Role::firstOrCreate(['name' => 'Ops Staff']);
+        $viewer     = Role::firstOrCreate(['name' => 'Viewer']);
 
         $admin->syncPermissions($permissions);
 
         $supervisor->syncPermissions([
-            'workorders.view','workorders.create','workorders.update','workorders.delete','workorders.assign',
-            'inspections.view','inspections.create','inspections.update','inspections.delete','inspections.export',
-            'users.view','users.create','users.update',
+            'workorders.view',
+            'workorders.create',
+            'workorders.update',
+            'workorders.delete',
+            'workorders.assign',
+            'inspections.view',
+            'inspections.create',
+            'inspections.update',
+            'inspections.delete',
+            'inspections.export',
+            'notams.view',
+            'notams.create',
+            'notams.update',
+            'notams.delete',
+            'passalongs.view',
+            'passalongs.create',
+            'passalongs.update',
+            'passalongs.delete',
+            'passalongs.export',
+            'users.view',
+            'users.create',
+            'users.update',
         ]);
 
         $staff->syncPermissions([
-            'workorders.view','workorders.create','workorders.update',
-            'inspections.view','inspections.create','inspections.update','inspections.export',
+            'workorders.view',
+            'workorders.create',
+            'workorders.update',
+            'inspections.view',
+            'inspections.create',
+            'inspections.update',
+            'inspections.export',
+            'notams.view',
+            'notams.create',
+            'notams.update',
+            'passalongs.view',
+            'passalongs.create',
+            'passalongs.update',
+            'passalongs.export',
         ]);
 
         $viewer->syncPermissions([
             'workorders.view',
             'inspections.view',
+            'notams.view',
+            'passalongs.view',
         ]);
 
-        // ✅ Assign Admin to your live account (set this to YOUR email)
-        $email = env('jaydenlyricr@gmail.com');
+        $email = env('ADMIN_EMAIL', 'jaydenlyricr@gmail.com');
 
         if ($email) {
             $user = User::where('email', $email)->first();

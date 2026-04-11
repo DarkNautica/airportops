@@ -10,6 +10,11 @@ use App\Models\AuditLog;
 
 class WorkOrderController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(WorkOrder::class, 'work_order');
+    }
+
     /**
      * Display a listing of the work orders.
      */

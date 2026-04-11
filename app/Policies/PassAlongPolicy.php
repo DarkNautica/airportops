@@ -7,43 +7,73 @@ use App\Models\User;
 
 class PassAlongPolicy
 {
+    private function isAdmin(User $user): bool
+    {
+        if (method_exists($user, 'hasRole')) {
+            return $user->hasRole('Admin') || $user->hasRole('Ops Supervisor');
+        }
+
+        return false;
+    }
+
+    private function canPerm(User $user, string $perm): bool
+    {
+        if (method_exists($user, 'can')) {
+            return (bool) $user->can($perm);
+        }
+
+        return false;
+    }
+
     public function viewAny(User $user): bool
     {
-        // ✅ This is what was causing /pass-alongs to 403.
-        // Keep it simple for now: any authenticated user can view the module.
-        return true;
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.view');
     }
 
     public function view(User $user, PassAlong $passAlong): bool
     {
-        return true;
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.view');
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.create');
     }
 
     public function update(User $user, PassAlong $passAlong): bool
     {
-        // Don’t allow edits if locked
-        return !$passAlong->is_locked;
+        if ((bool) $passAlong->is_locked) {
+            return false;
+        }
+
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.update');
     }
 
     public function submit(User $user, PassAlong $passAlong): bool
     {
-        // Allow submit if not already submitted
-        return $passAlong->status !== 'submitted';
+        if ($passAlong->status === 'submitted') {
+            return false;
+        }
+
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.update');
     }
 
     public function unlock(User $user, PassAlong $passAlong): bool
     {
-        // Tighten later (role/permission). For now allow unlock to stop blocking you.
-        return true;
+        return $this->isAdmin($user);
     }
 
     public function delete(User $user, PassAlong $passAlong): bool
     {
-        return true;
+        if ((bool) $passAlong->is_locked) {
+            return false;
+        }
+
+        return $this->isAdmin($user) && $this->canPerm($user, 'passalongs.delete');
+    }
+
+    public function export(User $user, PassAlong $passAlong): bool
+    {
+        return $this->isAdmin($user) || $this->canPerm($user, 'passalongs.export');
     }
 }

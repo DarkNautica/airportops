@@ -16,6 +16,10 @@ class AuditLog extends Model
         'properties',
         'ip',
         'user_agent',
+        'prev_hash',
+        'hash',
+        'hash_algo',
+        'hash_version',
     ];
 
     protected $casts = [

@@ -9,6 +9,8 @@ use App\Models\WorkOrder;
 use App\Observers\WorkOrderObserver;
 use App\Models\PassAlong;
 use App\Observers\PassAlongObserver;
+use App\Models\Notam;
+use App\Observers\NotamObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         Inspection::observe(InspectionObserver::class);
         WorkOrder::observe(WorkOrderObserver::class);
         PassAlong::observe(PassAlongObserver::class);
+        Notam::observe(NotamObserver::class);
     }
 }

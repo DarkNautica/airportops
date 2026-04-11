@@ -190,6 +190,8 @@ class PassAlongController extends Controller
 
     public function print(PassAlong $pass_along)
     {
+        $this->authorize('export', $pass_along);
+
         Audit::log($pass_along, 'printed', [
             'summary' => 'Pass Along print view opened',
         ]);
@@ -201,6 +203,8 @@ class PassAlongController extends Controller
 
     public function pdf(PassAlong $pass_along)
     {
+        $this->authorize('export', $pass_along);
+
         Audit::log($pass_along, 'pdf_generated', [
             'summary' => 'Pass Along PDF generated',
         ]);

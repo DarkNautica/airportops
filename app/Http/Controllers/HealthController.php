@@ -34,13 +34,8 @@ class HealthController extends Controller
 
         return response()->json([
             'ok' => $allOk,
-            'app' => config('app.name'),
-            'env' => config('app.env'),
-            'debug' => (bool) config('app.debug'),
-            'laravel' => app()->version(),
-            'php' => PHP_VERSION,
-            'checks' => $checks,
             'timestamp' => now()->toIso8601String(),
+            'checks' => $checks,
         ], $allOk ? 200 : 503);
     }
 }
