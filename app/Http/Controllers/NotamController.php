@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Notam;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreNotamRequest;
+use App\Http\Requests\UpdateNotamRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -46,17 +48,9 @@ class NotamController extends Controller
         return view('notams.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreNotamRequest $request)
     {
-        $data = $request->validate([
-            'station'        => ['nullable','string','max:8'],
-            'subject'        => ['nullable','string','max:255'],
-            'category'       => ['required','string'],
-            'status'         => ['required','string'],
-            'effective_from' => ['nullable','date'],
-            'effective_to'   => ['nullable','date','after_or_equal:effective_from'],
-            'notam_text'     => ['required','string'],
-        ]);
+        $data = $request->validated();
 
         $data['station'] = $data['station'] ?: 'KAVL';
 
@@ -83,21 +77,13 @@ class NotamController extends Controller
         return view('notams.edit', compact('notam'));
     }
 
-    public function update(Request $request, Notam $notam)
+    public function update(UpdateNotamRequest $request, Notam $notam)
     {
         if ($notam->is_locked) {
             return redirect()->route('notams.show', $notam)->with('error', 'This NOTAM is locked and cannot be updated.');
         }
 
-        $data = $request->validate([
-            'station'        => ['nullable','string','max:8'],
-            'subject'        => ['nullable','string','max:255'],
-            'category'       => ['required','string'],
-            'status'         => ['required','string'],
-            'effective_from' => ['nullable','date'],
-            'effective_to'   => ['nullable','date','after_or_equal:effective_from'],
-            'notam_text'     => ['required','string'],
-        ]);
+        $data = $request->validated();
 
         $data['station'] = $data['station'] ?: $notam->station;
         $data['updated_by'] = Auth::id();

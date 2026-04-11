@@ -35,12 +35,18 @@
                         <label class="text-sm font-medium text-gray-700">Name</label>
                         <input name="name" value="{{ old('name', $user->name) }}"
                                class="mt-1 w-full rounded-md border-gray-300" />
+                        @error('name')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
                         <label class="text-sm font-medium text-gray-700">Email</label>
                         <input name="email" value="{{ old('email', $user->email) }}"
                                class="mt-1 w-full rounded-md border-gray-300" />
+                        @error('email')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -48,12 +54,18 @@
                         <input name="title" value="{{ old('title', $user->title) }}"
                                placeholder="e.g. Ops Technician, Ops Supervisor, Airport Ops Manager"
                                class="mt-1 w-full rounded-md border-gray-300" />
+                        @error('title')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
                         <label class="text-sm font-medium text-gray-700">New Password (optional)</label>
                         <input name="password" type="password" class="mt-1 w-full rounded-md border-gray-300" />
                         <div class="text-xs text-gray-500 mt-1">Leave blank to keep existing password.</div>
+                        @error('password')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="pt-2">

@@ -6,6 +6,8 @@ use App\Models\PassAlong;
 use App\Models\PassAlongAttachment;
 use App\Support\Audit;
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePassAlongRequest;
+use App\Http\Requests\UpdatePassAlongRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -38,9 +40,9 @@ class PassAlongController extends Controller
         return view('pass_alongs.create', compact('defaultSections'));
     }
 
-    public function store(Request $request)
+    public function store(StorePassAlongRequest $request)
     {
-        $data = $this->validated($request);
+        $data = $request->validated();
 
         $passAlong = PassAlong::create($data);
 
@@ -70,9 +72,9 @@ class PassAlongController extends Controller
         return view('pass_alongs.edit', ['passAlong' => $pass_along]);
     }
 
-    public function update(Request $request, PassAlong $pass_along)
+    public function update(UpdatePassAlongRequest $request, PassAlong $pass_along)
     {
-        $data = $this->validated($request);
+        $data = $request->validated();
 
         $before = $pass_along->getOriginal();
 
@@ -215,39 +217,6 @@ class PassAlongController extends Controller
             ->setPaper('letter');
 
         return $pdf->download("pass-along-{$pass_along->id}.pdf");
-    }
-
-    private function validated(Request $request): array
-    {
-        return $request->validate([
-            'date' => ['required', 'date'],
-            'specialist_name' => ['nullable', 'string', 'max:255'],
-
-            'shift_start_time' => ['nullable', 'date_format:H:i'],
-            'shift_end_time'   => ['nullable', 'date_format:H:i'],
-
-            'am_part_139'       => ['sometimes', 'boolean'],
-            'am_perimeter'      => ['sometimes', 'boolean'],
-            'am_terminal'       => ['sometimes', 'boolean'],
-            'pm_part_139'       => ['sometimes', 'boolean'],
-            'pm_terminal'       => ['sometimes', 'boolean'],
-            'ramp_apron_patrol' => ['sometimes', 'boolean'],
-            'wildlife_patrol'   => ['sometimes', 'boolean'],
-
-            'significant_activity' => ['nullable', 'string'],
-
-            'sections' => ['nullable', 'array'],
-            'sections.*.title' => ['required_with:sections', 'string'],
-            'sections.*.rows' => ['required_with:sections', 'array'],
-            'sections.*.rows.*.label' => ['nullable', 'string'],
-            'sections.*.rows.*.value' => ['nullable', 'string'],
-
-            // ✅ validate row_attachments[*][*][]
-            'row_attachments' => ['nullable', 'array'],
-            'row_attachments.*' => ['nullable', 'array'],
-            'row_attachments.*.*' => ['nullable', 'array'],
-            'row_attachments.*.*.*' => ['file', 'max:12288', 'mimes:jpg,jpeg,png,webp,pdf'],
-        ]);
     }
 
     /**

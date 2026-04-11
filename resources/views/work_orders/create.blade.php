@@ -1,6 +1,6 @@
 {{-- resources/views/work_orders/create.blade.php --}}
 
-<x-app-layout>
+<x-sidebar-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('New Work Order') }}
@@ -38,6 +38,9 @@
                             rows="4"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         >{{ old('description') }}</textarea>
+                        @error('description')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="mb-4">
@@ -50,6 +53,9 @@
                             value="{{ old('location') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         >
+                        @error('location')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -62,11 +68,13 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                 required
                             >
-                                <option value="Low">Low</option>
-                                <option value="Normal" selected>Normal</option>
-                                <option value="High">High</option>
-                                <option value="Critical">Critical</option>
+                                @foreach (\App\Enums\WorkOrderPriority::all() as $p)
+                                    <option value="{{ $p }}" @selected(old('priority', 'Normal') === $p)>{{ $p }}</option>
+                                @endforeach
                             </select>
+                            @error('priority')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -78,11 +86,13 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                 required
                             >
-                                <option value="Open" selected>Open</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="On Hold">On Hold</option>
-                                <option value="Closed">Closed</option>
+                                @foreach (\App\Enums\WorkOrderStatus::all() as $s)
+                                    <option value="{{ $s }}" @selected(old('status', 'Open') === $s)>{{ $s }}</option>
+                                @endforeach
                             </select>
+                            @error('status')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -95,6 +105,9 @@
                                 value="{{ old('due_date') }}"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                             >
+                            @error('due_date')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -116,4 +129,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-sidebar-app-layout>

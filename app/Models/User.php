@@ -129,4 +129,33 @@ class User extends Authenticatable
     {
         return $this->hasRoleSafe(RoleName::OPS_STAFF);
     }
+
+    // ============================
+    // Relationships
+    // ============================
+
+    public function inspections()
+    {
+        return $this->hasMany(\App\Models\Inspection::class, 'inspector_id');
+    }
+
+    public function workOrders()
+    {
+        return $this->hasMany(\App\Models\WorkOrder::class, 'created_by');
+    }
+
+    public function notams()
+    {
+        return $this->hasMany(\App\Models\Notam::class, 'created_by');
+    }
+
+    public function passAlongs()
+    {
+        return $this->hasMany(\App\Models\PassAlong::class, 'submitted_by');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(\App\Models\AuditLog::class, 'causer_id');
+    }
 }

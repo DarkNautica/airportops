@@ -18,7 +18,15 @@
       "Bash(php.bat -l app/Models/User.php)",
       "Bash(php.bat -l app/Models/Inspection.php)",
       "Bash(php.bat -l app/Models/WorkOrder.php)",
-      "Bash(php.bat -l app/Models/Notam.php)"
+      "Bash(php.bat -l app/Models/Notam.php)",
+      "Bash(php.bat -l app/Http/Controllers/InspectionController.php)",
+      "Bash(php.bat -l app/Http/Controllers/PassAlongController.php)",
+      "Bash(php.bat -l routes/web.php)",
+      "Bash(php.bat -l config/checklist.php)",
+      "Bash(php.bat -l app/Enums/WorkOrderStatus.php)",
+      "Bash(php.bat -l app/Enums/WorkOrderPriority.php)",
+      "Bash(php.bat -l app/Http/Requests/StoreInspectionRequest.php)",
+      "Bash(php.bat -l app/Http/Requests/UpdateInspectionRequest.php)"
     ]
   }
 }

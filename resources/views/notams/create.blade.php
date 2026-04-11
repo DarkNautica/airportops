@@ -40,6 +40,9 @@
                             <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Station</label>
                             <input name="station" value="{{ old('station', 'KAVL') }}"
                                    class="mt-1 w-full rounded-md border-gray-300 focus:border-gray-900 focus:ring-gray-900 text-sm">
+                            @error('station')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -50,6 +53,9 @@
                                     <option value="{{ $opt }}" @selected(old('status','Draft') === $opt)>{{ $opt }}</option>
                                 @endforeach
                             </select>
+                            @error('status')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -60,6 +66,9 @@
                                     <option value="{{ $opt }}" @selected(old('category','Other') === $opt)>{{ $opt }}</option>
                                 @endforeach
                             </select>
+                            @error('category')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -67,6 +76,9 @@
                             <input name="subject" value="{{ old('subject') }}"
                                    placeholder="RWY 17/35 EDGE LIGHTS OTS"
                                    class="mt-1 w-full rounded-md border-gray-300 focus:border-gray-900 focus:ring-gray-900 text-sm">
+                            @error('subject')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -75,6 +87,9 @@
                                    value="{{ old('effective_from') }}"
                                    class="mt-1 w-full rounded-md border-gray-300 focus:border-gray-900 focus:ring-gray-900 text-sm">
                             <div class="text-xs text-gray-500 mt-1">Use UTC times.</div>
+                            @error('effective_from')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -82,6 +97,9 @@
                             <input type="datetime-local" name="effective_to"
                                    value="{{ old('effective_to') }}"
                                    class="mt-1 w-full rounded-md border-gray-300 focus:border-gray-900 focus:ring-gray-900 text-sm">
+                            @error('effective_to')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -93,6 +111,9 @@
                         <div class="text-xs text-gray-500 mt-1">
                             Keep it exact. We’ll use this to reconcile against official NOTAM sources.
                         </div>
+                        @error(‘notam_text’)
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="flex items-center justify-end gap-2">

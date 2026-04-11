@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\WorkOrder;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreWorkOrderRequest;
+use App\Http\Requests\UpdateWorkOrderRequest;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\AuditLog;
@@ -152,16 +154,9 @@ class WorkOrderController extends Controller
         return view('work_orders.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreWorkOrderRequest $request)
     {
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'location'    => 'nullable|string|max:255',
-            'priority'    => 'required|string|max:50',
-            'status'      => 'required|string|max:50',
-            'due_date'    => 'nullable|date',
-        ]);
+        $data = $request->validated();
 
         // Generate sequential WO number
         $nextId = (WorkOrder::max('id') ?? 0) + 1;
@@ -194,16 +189,9 @@ class WorkOrderController extends Controller
         return view('work_orders.edit', compact('workOrder'));
     }
 
-    public function update(Request $request, WorkOrder $workOrder)
+    public function update(UpdateWorkOrderRequest $request, WorkOrder $workOrder)
     {
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'location'    => 'nullable|string|max:255',
-            'priority'    => 'required|string|max:50',
-            'status'      => 'required|string|max:50',
-            'due_date'    => 'nullable|date',
-        ]);
+        $data = $request->validated();
 
         $data['updated_by'] = Auth::id();
 

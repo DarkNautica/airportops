@@ -36,7 +36,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 | Auth + Verified Area
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------

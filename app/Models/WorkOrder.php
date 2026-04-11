@@ -29,19 +29,23 @@ class WorkOrder extends Model
         'completed_at' => 'datetime',
     ];
 
-    // Relations if/when we want them later:
-    // public function creator()
-    // {
-    //     return $this->belongsTo(User::class, 'created_by');
-    // }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-    // public function requester()
-    // {
-    //     return $this->belongsTo(User::class, 'requested_by');
-    // }
+    public function requester()
+    {
+        return $this->belongsTo(User::class, 'requested_by');
+    }
 
-    // public function updater()
-    // {
-    //     return $this->belongsTo(User::class, 'updated_by');
-    // }
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function auditLogs()
+    {
+        return $this->morphMany(\App\Models\AuditLog::class, 'auditable')->latest();
+    }
 }

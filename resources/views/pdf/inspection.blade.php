@@ -16,40 +16,72 @@
         .center { text-align:center; }
         .muted { color:#444; }
         .section { font-weight:700; background:#eaeaea; }
+        .state-box { display:inline-block; width:14px; height:14px; line-height:14px; border:1px solid #111; text-align:center; font-weight:700; font-size:9px; vertical-align:middle; }
+        .state-box.na { font-size:7.5px; letter-spacing:-0.3px; }
     </style>
 </head>
 <body>
 
 @php
-    $header = $inspection->header ?? [];
-    $checklist = $inspection->checklist ?? [];
+    $header = is_array($inspection->header ?? null) ? $inspection->header : [];
+    $checklist = is_array($inspection->checklist ?? null) ? $inspection->checklist : [];
+    $sections = config('checklist');
+
+    $fmtDate = function($d) {
+        try { return $d ? \Illuminate\Support\Carbon::parse($d)->format('m/d/Y') : '—'; }
+        catch (\Throwable $e) { return '—'; }
+    };
+    $fmtTime = function($t) {
+        try { return $t ? \Illuminate\Support\Carbon::parse($t)->format('H:i') : '—'; }
+        catch (\Throwable $e) { return '—'; }
+    };
+    $val = fn($v) => filled($v ?? null) ? $v : '—';
+
+    $state = function(string $key, string $period) use ($checklist): ?string {
+        $v = data_get($checklist, "{$key}.{$period}", null);
+        if (in_array($v, ['S','U','NA'], true)) return $v;
+        if ($v === 1 || $v === true || $v === '1') return 'U';
+        return null;
+    };
+    $printState = function(?string $s): string {
+        if ($s === 'NA') return 'N/A';
+        return $s ?? '';
+    };
+    $isNA = fn(?string $s) => $s === 'NA';
+    $remarks = function(string $key) use ($checklist): string {
+        $r = data_get($checklist, "{$key}.remarks", '');
+        return is_string($r) ? trim($r) : '';
+    };
 @endphp
 
-<div class="title">ASHEVILLE REGIONAL AIRPORT</div>
+<div class="title">{{ $header['airport_name'] ?? 'ASHEVILLE REGIONAL AIRPORT' }}</div>
 <div class="subtitle">AIRPORT SAFETY SELF-INSPECTION CHECKLIST<br><span class="muted">(FAA Part 139 – Daily Inspection)</span></div>
 
 <table class="meta">
     <tr>
         <td class="box" style="width:50%;">
-            <div><strong>Date:</strong> {{ \Illuminate\Support\Carbon::parse($inspection->inspection_date)->format('m / d / Y') }}</div>
-            <div><strong>Day:</strong> {{ $header['day'] ?? '' }}</div>
+            <div><strong>Date:</strong> {{ $fmtDate($inspection->inspection_date) }}</div>
+            <div><strong>Day:</strong> {{ $val($header['inspection_day'] ?? null) }}</div>
+            <div><strong>Inspection #:</strong> {{ $val($inspection->insp_number) }}</div>
+            <div><strong>Inspector:</strong> {{ $inspection->inspector?->name ?? '—' }}</div>
         </td>
         <td class="box" style="width:50%;">
-            <div><strong>Crash Phone Test:</strong> {{ $header['crash_phone_time'] ?? '' }}</div>
-            <div><strong>AM Inspection:</strong> {{ $header['am_time'] ?? '' }}</div>
-            <div><strong>PM Inspection:</strong> {{ $header['pm_time'] ?? '' }}</div>
-            <div><strong>Other Inspection:</strong> {{ $header['other_time'] ?? '' }}</div>
+            <div><strong>Crash Phone Test:</strong> {{ $fmtTime($header['crash_phone_test_time'] ?? null) }}</div>
+            <div><strong>AM Inspection:</strong> {{ $fmtTime($header['am_time'] ?? null) }}</div>
+            <div><strong>PM Inspection:</strong> {{ $fmtTime($header['pm_time'] ?? null) }}</div>
+            <div><strong>Other Inspection:</strong> {{ $fmtTime($header['other_time'] ?? null) }}</div>
         </td>
     </tr>
     <tr>
         <td class="box">
-            <div><strong>By (AM):</strong> {{ $header['by_am'] ?? '' }}</div>
-            <div><strong>By (PM):</strong> {{ $header['by_pm'] ?? '' }}</div>
-            <div><strong>By (Other):</strong> {{ $header['by_other'] ?? '' }}</div>
+            <div><strong>By (Crash):</strong> {{ $val($header['by_1'] ?? null) }}</div>
+            <div><strong>By (AM):</strong> {{ $val($header['by_2'] ?? null) }}</div>
+            <div><strong>By (PM):</strong> {{ $val($header['by_3'] ?? null) }}</div>
+            <div><strong>By (Other):</strong> {{ $val($header['by_4'] ?? null) }}</div>
         </td>
         <td class="box">
             <div><strong>Overall:</strong>
-                {{ $header['overall'] ?? '' }}
+                {{ $val($header['overall_status'] ?? null) }}
                 <span class="muted">(Satisfactory / Unsatisfactory)</span>
             </div>
         </td>
@@ -58,79 +90,10 @@
 
 <div class="section box">FACILITIES / CONDITIONS</div>
 
-@php
-    // Sections + items match your checklist structure
-    $sections = [
-        'PAVEMENT AREAS' => [
-            'pavement_lip_over_3' => 'Pavement lip over 3"',
-            'holes_over_5' => 'Holes > 5" dia, > 3" deep',
-            'cracks_spalling_bumps' => 'Cracks / spalling / bumps',
-            'fod' => 'FOD (gravel, debris, etc.)',
-            'rubber_deposits' => 'Rubber deposits',
-            'ponding_edge_dams' => 'Ponding / edge dams',
-        ],
-        'SAFETY AREAS' => [
-            'ruts_humps_erosion' => 'Ruts / humps / erosion',
-            'drainage_construction' => 'Drainage / construction',
-            'objects_frangible_base' => 'Objects / frangible base',
-        ],
-        'MARKINGS / SIGNS' => [
-            'visibility_standard' => 'Visibility standard',
-            'hold_lines_signs' => 'Hold lines / signs',
-            'frangible_signs' => 'Frangible signs',
-        ],
-        'LIGHTING' => [
-            'obscured_dirty_fading' => 'Obscured / dirty / fading',
-            'damaged_missing' => 'Damaged / missing',
-            'inoperative' => 'Inoperative',
-            'faulty_aim_adjustment' => 'Faulty aim / adjustment',
-        ],
-        'NAVIGATIONAL AIDS' => [
-            'rotating_beacon' => 'Rotating beacon',
-            'wind_indicators' => 'Wind indicators',
-            'reils_papi_ils' => 'REILs / PAPI / ILS systems',
-        ],
-        'OBSTRUCTIONS' => [
-            'obstruction_lights' => 'Obstruction lights',
-            'cranes_trees' => 'Cranes / trees',
-        ],
-        'WILDLIFE HAZARDS' => [
-            'wildlife_present' => 'Wildlife present / location',
-            'complying_whmp' => 'Complying with WHMP',
-        ],
-        'FUEL FARMS' => [
-            'fuel_fencing_gates_signs' => 'Fencing / gates / signs',
-            'fuel_marking_labeling' => 'Fuel marking / labeling',
-            'fuel_fire_ext_ground_clips' => 'Fire exting. / ground clips',
-            'fuel_leaks_vegetation' => 'Fuel leaks / vegetation',
-        ],
-        'SNOW & ICE' => [
-            'surface_conditions' => 'Surface conditions',
-            'snow_bank_clearance' => 'Snow bank clearance',
-            'lights_signs_obscured' => 'Lights / signs obscured',
-            'navaids_fire_access' => 'Navaids / fire access',
-        ],
-        'ARFF' => [
-            'equipment_crew_availability' => 'Equipment / crew availability',
-            'response_routes_clear' => 'Response routes clear',
-        ],
-        'PUBLIC PROTECTION' => [
-            'public_fencing_gates_signs' => 'Fencing / gates / signs',
-            'unauthorized_persons_vehicles' => 'Unauthorized persons / veh.',
-        ],
-        'CONSTRUCTION' => [
-            'barricades_lights' => 'Barricades / lights',
-            'equipment_parking' => 'Equipment parking',
-        ],
-    ];
-@endphp
-
 @foreach ($sections as $sectionTitle => $items)
     <table class="check">
         <thead>
-        <tr>
-            <th colspan="4">{{ $sectionTitle }}</th>
-        </tr>
+        <tr><th colspan="4">{{ $sectionTitle }}</th></tr>
         <tr>
             <th style="width:45%;">Item</th>
             <th class="center" style="width:10%;">AM</th>
@@ -139,18 +102,22 @@
         </tr>
         </thead>
         <tbody>
-        @foreach ($items as $key => $label)
+        @foreach ($items as $item)
             @php
-                $row = $checklist[$key] ?? [];
-                $am = !empty($row['am']);
-                $pm = !empty($row['pm']);
-                $remarks = $row['remarks'] ?? '';
+                $key = $item['key'];
+                $am = $state($key, 'am');
+                $pm = $state($key, 'pm');
+                $rm = $remarks($key);
             @endphp
             <tr>
-                <td>{{ $label }}</td>
-                <td class="center">{{ $am ? '☒' : '☐' }}</td>
-                <td class="center">{{ $pm ? '☒' : '☐' }}</td>
-                <td>{{ $remarks }}</td>
+                <td>{{ $item['label'] }}</td>
+                <td class="center">
+                    <span class="state-box {{ $isNA($am) ? 'na' : '' }}">{{ $printState($am) }}</span>
+                </td>
+                <td class="center">
+                    <span class="state-box {{ $isNA($pm) ? 'na' : '' }}">{{ $printState($pm) }}</span>
+                </td>
+                <td>{{ $rm }}</td>
             </tr>
         @endforeach
         </tbody>

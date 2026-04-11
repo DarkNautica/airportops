@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Inspection;
 use App\Observers\InspectionObserver;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreInspectionRequest;
+use App\Http\Requests\UpdateInspectionRequest;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -58,11 +60,11 @@ class InspectionController extends Controller
         return view('inspections.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreInspectionRequest $request)
     {
         // authorizeResource handles create
 
-        $validated = $this->validateForm($request);
+        $validated = $request->validated();
 
         $data = [
             'inspection_date' => $validated['inspection_date'],
@@ -117,7 +119,7 @@ class InspectionController extends Controller
         return view('inspections.edit', compact('inspection'));
     }
 
-    public function update(Request $request, Inspection $inspection)
+    public function update(UpdateInspectionRequest $request, Inspection $inspection)
     {
         // authorizeResource handles update
 
@@ -128,7 +130,7 @@ class InspectionController extends Controller
                 ->with('error', 'Inspection is locked and cannot be edited.');
         }
 
-        $validated = $this->validateForm($request);
+        $validated = $request->validated();
 
         $before = [
             'inspection_date' => optional($inspection->inspection_date)->format('Y-m-d'),
@@ -271,30 +273,6 @@ class InspectionController extends Controller
     // -----------------------------
     // Internal helpers
     // -----------------------------
-
-    private function validateForm(Request $request): array
-    {
-        return $request->validate([
-            'inspection_date' => 'required|date',
-
-            'inspection_day' => 'nullable|string|max:50',
-            'overall_status' => 'nullable|in:Satisfactory,Unsatisfactory',
-
-            'crash_phone_test_time' => 'nullable|date_format:H:i',
-            'am_time' => 'nullable|date_format:H:i',
-            'pm_time' => 'nullable|date_format:H:i',
-            'other_time' => 'nullable|date_format:H:i',
-
-            'by_1' => 'nullable|string|max:100',
-            'by_2' => 'nullable|string|max:100',
-            'by_3' => 'nullable|string|max:100',
-            'by_4' => 'nullable|string|max:100',
-
-            'checklist' => 'nullable|array',
-
-            'findings'  => 'nullable|string',
-        ]);
-    }
 
     private function buildHeaderPayload(array $validated): array
     {

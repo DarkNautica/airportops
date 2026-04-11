@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-sidebar-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Edit Work Order
@@ -29,32 +29,41 @@
                             <input id="location" name="location" type="text"
                                    value="{{ old('location', $workOrder->location) }}"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            @error('location')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700" for="priority">Priority</label>
                             <select id="priority" name="priority"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                @foreach (['Critical', 'High', 'Normal', 'Low'] as $priority)
+                                @foreach (\App\Enums\WorkOrderPriority::all() as $priority)
                                     <option value="{{ $priority }}"
                                         @selected(old('priority', $workOrder->priority) === $priority)>
                                         {{ $priority }}
                                     </option>
                                 @endforeach
                             </select>
+                            @error('priority')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700" for="status">Status</label>
                             <select id="status" name="status"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                @foreach (['Open', 'In Progress', 'Closed'] as $status)
+                                @foreach (\App\Enums\WorkOrderStatus::all() as $status)
                                     <option value="{{ $status }}"
                                         @selected(old('status', $workOrder->status) === $status)>
                                         {{ $status }}
                                     </option>
                                 @endforeach
                             </select>
+                            @error('status')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
@@ -62,12 +71,18 @@
                             <input id="due_date" name="due_date" type="date"
                                    value="{{ old('due_date', optional($workOrder->due_date)->format('Y-m-d')) }}"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            @error('due_date')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700" for="description">Description</label>
                             <textarea id="description" name="description" rows="4"
                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ old('description', $workOrder->description) }}</textarea>
+                            @error('description')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="flex items-center justify-between mt-6">
@@ -87,4 +102,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-sidebar-app-layout>

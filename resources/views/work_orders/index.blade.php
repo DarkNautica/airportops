@@ -112,10 +112,9 @@
                                     class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-sm"
                                 >
                                     <option value="all" {{ $statusVal === 'all' ? 'selected' : '' }}>All</option>
-                                    <option value="Open" {{ $statusVal === 'Open' ? 'selected' : '' }}>Open</option>
-                                    <option value="In Progress" {{ $statusVal === 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                                    <option value="Completed" {{ $statusVal === 'Completed' ? 'selected' : '' }}>Completed</option>
-                                    <option value="Closed" {{ $statusVal === 'Closed' ? 'selected' : '' }}>Closed</option>
+                                    @foreach (\App\Enums\WorkOrderStatus::all() as $s)
+                                        <option value="{{ $s }}" {{ $statusVal === $s ? 'selected' : '' }}>{{ $s }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -126,11 +125,9 @@
                                     class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 text-sm"
                                 >
                                     <option value="all" {{ $priorityVal === 'all' ? 'selected' : '' }}>All</option>
-                                    <option value="Critical" {{ $priorityVal === 'Critical' ? 'selected' : '' }}>Critical</option>
-                                    <option value="High" {{ $priorityVal === 'High' ? 'selected' : '' }}>High</option>
-                                    <option value="Medium" {{ $priorityVal === 'Medium' ? 'selected' : '' }}>Medium</option>
-                                    <option value="Normal" {{ $priorityVal === 'Normal' ? 'selected' : '' }}>Normal</option>
-                                    <option value="Low" {{ $priorityVal === 'Low' ? 'selected' : '' }}>Low</option>
+                                    @foreach (\App\Enums\WorkOrderPriority::all() as $p)
+                                        <option value="{{ $p }}" {{ $priorityVal === $p ? 'selected' : '' }}>{{ $p }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
