@@ -1,9 +1,6 @@
 <x-sidebar-app-layout>
     <x-slot name="header">
-        <div>
-            <h2 class="font-semibold text-xl text-gray-900 leading-tight">Dashboard</h2>
-            <p class="text-sm text-gray-600 mt-1">Operational overview — work orders + Part 139 inspections.</p>
-        </div>
+        <h1 class="font-instrument text-xl text-gray-900">Dashboard</h1>
     </x-slot>
 
     <x-slot name="actions">
@@ -20,28 +17,80 @@
         </div>
     </x-slot>
 
-    {{-- Bento canvas (darker, layered, non-white) --}}
-    <div class="min-h-screen py-10 bg-gradient-to-b from-slate-100 via-gray-100 to-slate-200">
-        <div class="w-full px-6 lg:px-10 space-y-8">
+    <div class="min-h-screen bg-surface pb-10">
+        <div class="w-full px-6 lg:px-10 py-8 space-y-6">
 
-            {{-- Alerts (keep, but make it feel like a tile) --}}
+            {{-- Stat Cards Row --}}
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+
+                {{-- Card 1: Open Work Orders --}}
+                <a href="{{ route('work-orders.index') }}" class="block bg-white rounded-xl shadow-card border border-surface-border overflow-hidden hover:shadow-md transition">
+                    <div class="h-[2px] bg-[#2563EB]"></div>
+                    <div class="p-5">
+                        <div class="font-serif text-3xl text-gray-900">{{ $openWorkOrdersCount }}</div>
+                        <div class="mt-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">Open Work Orders</div>
+                    </div>
+                </a>
+
+                {{-- Card 2: Critical --}}
+                <a href="{{ route('work-orders.index') }}" class="block bg-white rounded-xl shadow-card border border-surface-border overflow-hidden hover:shadow-md transition">
+                    <div class="h-[2px] bg-[#DC2626]"></div>
+                    <div class="p-5">
+                        <div class="font-serif text-3xl text-gray-900">{{ $criticalOpenCount }}</div>
+                        <div class="mt-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">Critical</div>
+                    </div>
+                </a>
+
+                {{-- Card 3: Overdue --}}
+                <a href="{{ route('work-orders.index') }}" class="block bg-white rounded-xl shadow-card border border-surface-border overflow-hidden hover:shadow-md transition">
+                    <div class="h-[2px] bg-[#D97706]"></div>
+                    <div class="p-5">
+                        <div class="font-serif text-3xl text-gray-900">{{ $overdueCount }}</div>
+                        <div class="mt-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">Overdue</div>
+                    </div>
+                </a>
+
+                {{-- Card 4: Inspections Today --}}
+                <a href="{{ route('inspections.index') }}" class="block bg-white rounded-xl shadow-card border border-surface-border overflow-hidden hover:shadow-md transition">
+                    <div class="h-[2px] bg-[#16A34A]"></div>
+                    <div class="p-5">
+                        <div class="font-serif text-3xl text-gray-900">{{ $inspectionsTodayCount }}</div>
+                        <div class="mt-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">Inspections Today</div>
+                    </div>
+                </a>
+
+                {{-- Card 5: System Status --}}
+                <div class="bg-white rounded-xl shadow-card border border-surface-border overflow-hidden">
+                    <div class="h-[2px] bg-[#16A34A]"></div>
+                    <div class="p-5">
+                        <div class="flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                            </span>
+                            <span class="font-serif text-lg text-gray-900">Online</span>
+                        </div>
+                        <div class="mt-2 font-mono text-[10px] uppercase tracking-widest text-slate-500">System Status</div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Alert Banner --}}
             @if ($missingInspectionToday || $overdueCount > 0)
-                <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-yellow-50 to-white shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl shadow-card overflow-hidden border-l-4 border-l-amber-400">
                     <div class="p-5">
                         <div class="flex items-start gap-3">
-                            <div class="mt-0.5">
-                                <div class="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-200 flex items-center justify-center">
-                                    <span class="text-amber-900 font-black">!</span>
-                                </div>
+                            <div class="mt-0.5 flex-shrink-0">
+                                <div class="h-2.5 w-2.5 rounded-full bg-amber-400"></div>
                             </div>
 
                             <div class="flex-1">
                                 <div class="flex items-center justify-between">
-                                    <div class="font-semibold text-amber-900">Operational Alerts</div>
-                                    <div class="text-xs text-amber-900/60">Action recommended</div>
+                                    <div class="font-semibold text-gray-900 text-sm">Operational Alerts</div>
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">Action Required</div>
                                 </div>
 
-                                <ul class="list-disc pl-5 text-sm mt-2 space-y-1 text-amber-900">
+                                <ul class="list-disc pl-5 text-sm mt-2 space-y-1 text-gray-700">
                                     @if($missingInspectionToday)
                                         <li><span class="font-semibold">Inspection missing:</span> No inspection logged for today.</li>
                                     @endif
@@ -53,13 +102,13 @@
                                 <div class="mt-3 flex flex-wrap gap-2">
                                     @if($missingInspectionToday)
                                         <a href="{{ route('inspections.create') }}"
-                                           class="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-900 text-amber-50 text-xs font-semibold hover:bg-amber-950">
+                                           class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600">
                                             Create Inspection
                                         </a>
                                     @endif
                                     @if($overdueCount > 0)
                                         <a href="{{ route('work-orders.index') }}"
-                                           class="inline-flex items-center px-3 py-1.5 rounded-xl border border-amber-300 bg-white text-amber-900 text-xs font-semibold hover:bg-amber-50">
+                                           class="inline-flex items-center px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-amber-800 text-xs font-semibold hover:bg-amber-50">
                                             Review Work Orders
                                         </a>
                                     @endif
@@ -67,97 +116,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="h-1.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300"></div>
                 </div>
             @endif
 
+            {{-- Weather + ATIS Row --}}
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            @php
-                // Utility: tile base classes
-                $tileBase = "rounded-2xl border shadow-sm overflow-hidden transition hover:shadow-md";
-            @endphp
-
-            {{-- Bento Grid --}}
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]">
-
-                {{-- KPI: Open Work Orders (tinted tile) --}}
-                <div class="{{ $tileBase }} lg:col-span-3 bg-gradient-to-br from-blue-50 via-slate-50 to-white border-blue-100">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Open Work Orders</div>
-                            <span class="inline-flex items-center rounded-full bg-blue-600/10 text-blue-700 border border-blue-200 px-2 py-0.5 text-xs font-semibold">
-                                Ops
-                            </span>
-                        </div>
-                        <div class="mt-3 text-4xl font-black text-gray-900">{{ $openWorkOrdersCount }}</div>
-                        <div class="mt-2 text-xs text-gray-600">Not completed.</div>
-                    </div>
-                    <div class="px-5 py-3 bg-white/60 border-t border-blue-100 flex items-center justify-between text-xs text-gray-600">
-                        <span>Open list</span>
-                        <a href="{{ route('work-orders.index') }}" class="font-semibold text-blue-700 hover:underline">View</a>
-                    </div>
-                </div>
-
-                {{-- KPI: Critical Open (more aggressive tint) --}}
-                <div class="{{ $tileBase }} lg:col-span-3 bg-gradient-to-br from-rose-50 via-red-50 to-white border-red-100">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Critical Open</div>
-                            <span class="inline-flex items-center rounded-full bg-red-600/10 text-red-700 border border-red-200 px-2 py-0.5 text-xs font-semibold">
-                                Critical
-                            </span>
-                        </div>
-                        <div class="mt-3 text-4xl font-black text-gray-900">{{ $criticalOpenCount }}</div>
-                        <div class="mt-2 text-xs text-gray-600">Priority = Critical.</div>
-                    </div>
-                    <div class="px-5 py-3 bg-white/60 border-t border-red-100 flex items-center justify-between text-xs text-gray-600">
-                        <span>Needs eyes</span>
-                        <a href="{{ route('work-orders.index') }}" class="font-semibold text-red-700 hover:underline">Review</a>
-                    </div>
-                </div>
-
-                {{-- KPI: Overdue --}}
-                <div class="{{ $tileBase }} lg:col-span-3 bg-gradient-to-br from-amber-50 via-yellow-50 to-white border-amber-100">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Overdue</div>
-                            <span class="inline-flex items-center rounded-full bg-amber-600/10 text-amber-800 border border-amber-200 px-2 py-0.5 text-xs font-semibold">
-                                Due
-                            </span>
-                        </div>
-                        <div class="mt-3 text-4xl font-black text-gray-900">{{ $overdueCount }}</div>
-                        <div class="mt-2 text-xs text-gray-600">Due date passed.</div>
-                    </div>
-                    <div class="px-5 py-3 bg-white/60 border-t border-amber-100 flex items-center justify-between text-xs text-gray-600">
-                        <span>Resolve</span>
-                        <a href="{{ route('work-orders.index') }}" class="font-semibold text-amber-800 hover:underline">Fix</a>
-                    </div>
-                </div>
-
-                {{-- KPI: Inspections Today --}}
-                <div class="{{ $tileBase }} lg:col-span-3 bg-gradient-to-br from-emerald-50 via-green-50 to-white border-emerald-100">
-                    <div class="p-5">
-                        <div class="flex items-center justify-between">
-                            <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Inspections Today</div>
-                            <span class="inline-flex items-center rounded-full bg-emerald-600/10 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-xs font-semibold">
-                                Part 139
-                            </span>
-                        </div>
-                        <div class="mt-3 text-4xl font-black text-gray-900">{{ $inspectionsTodayCount }}</div>
-                        <div class="mt-2 text-xs text-gray-600">{{ now()->format('Y-m-d') }}</div>
-                    </div>
-                    <div class="px-5 py-3 bg-white/60 border-t border-emerald-100 flex items-center justify-between text-xs text-gray-600">
-                        <span>Log history</span>
-                        <a href="{{ route('inspections.index') }}" class="font-semibold text-emerald-700 hover:underline">View</a>
-                    </div>
-                </div>
-
-                {{-- Weather tile (big, glass + contrast) --}}
-                <div class="{{ $tileBase }} lg:col-span-8 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-950 border-white/10">
+                {{-- Weather Tile --}}
+                <div class="lg:col-span-8 bg-[#0E1520] rounded-xl shadow-card overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-wide text-white/70">Weather Brief</div>
+                                <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Weather Brief</div>
                                 <div class="mt-1 text-xl font-bold text-white">{{ $station ?? 'KAVL' }}</div>
 
                                 @php
@@ -172,7 +142,7 @@
                                 @endphp
 
                                 <div class="mt-3 inline-flex items-center gap-2">
-                                    <span class="text-xs text-white/60">Flight Category</span>
+                                    <span class="font-mono text-[10px] uppercase tracking-widest text-white/50">Flight Category</span>
                                     <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold {{ $catBadge }}">
                                         {{ $cat }}
                                     </span>
@@ -181,7 +151,7 @@
 
                             <div class="flex items-center gap-2">
                                 <a href="{{ $liveAtcAtisUrl }}" target="_blank"
-                                   class="inline-flex items-center justify-center px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-semibold hover:bg-white/15 border border-white/10">
+                                   class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/15 border border-white/10">
                                     ATIS (LiveATC)
                                 </a>
                             </div>
@@ -189,7 +159,7 @@
 
                         <div class="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
                             @if(!$metarUi || (!$metarRaw && $wxMetarError))
-                                <div class="col-span-2 md:col-span-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-100">
+                                <div class="col-span-2 md:col-span-5 rounded-lg border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-100">
                                     <div class="font-semibold">METAR unavailable</div>
                                     <div class="mt-1 text-xs opacity-80">{{ $wxMetarError ?? 'No METAR available.' }}</div>
                                 </div>
@@ -200,44 +170,44 @@
                                     $wg = $metarUi['windGst'];
                                 @endphp
 
-                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-white/60">Wind</div>
-                                    <div class="mt-2 text-lg font-black text-white">
+                                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Wind</div>
+                                    <div class="mt-2 text-lg font-bold text-white">
                                         {{ is_numeric($wd) ? sprintf('%03d', $wd) : '—' }}°
                                         {{ is_numeric($ws) ? $ws : '—' }}kt
                                         @if(is_numeric($wg)) <span class="text-sm text-white/60">G{{ $wg }}</span> @endif
                                     </div>
-                                    <div class="mt-2 text-xs text-white/50">Dir / Spd / Gust</div>
+                                    <div class="mt-2 font-mono text-[10px] text-white/40">Dir / Spd / Gust</div>
                                 </div>
 
-                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-white/60">Visibility</div>
-                                    <div class="mt-2 text-lg font-black text-white">
+                                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Visibility</div>
+                                    <div class="mt-2 text-lg font-bold text-white">
                                         {{ $metarUi['visib'] ?? '—' }} <span class="text-sm text-white/60 font-semibold">SM</span>
                                     </div>
-                                    <div class="mt-2 text-xs text-white/50">Reported</div>
+                                    <div class="mt-2 font-mono text-[10px] text-white/40">Reported</div>
                                 </div>
 
-                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-white/60">Temp / Dew</div>
-                                    <div class="mt-2 text-lg font-black text-white">
+                                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Temp / Dew</div>
+                                    <div class="mt-2 text-lg font-bold text-white">
                                         {{ is_numeric($metarUi['tempC']) ? round($metarUi['tempC']) : '—' }}°C
-                                        <span class="text-white/20 font-black px-1">/</span>
+                                        <span class="text-white/20 font-bold px-1">/</span>
                                         {{ is_numeric($metarUi['dewpC']) ? round($metarUi['dewpC']) : '—' }}°C
                                     </div>
-                                    <div class="mt-2 text-xs text-white/50">Celsius</div>
+                                    <div class="mt-2 font-mono text-[10px] text-white/40">Celsius</div>
                                 </div>
 
-                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-white/60">Altimeter</div>
-                                    <div class="mt-2 text-lg font-black text-white">
+                                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Altimeter</div>
+                                    <div class="mt-2 text-lg font-bold text-white">
                                         @if(is_numeric($metarUi['altimInHg']))
                                             {{ number_format($metarUi['altimInHg'], 2) }}" <span class="text-sm text-white/60 font-semibold">Hg</span>
                                         @else
                                             —
                                         @endif
                                     </div>
-                                    <div class="mt-2 text-xs text-white/50">
+                                    <div class="mt-2 font-mono text-[10px] text-white/40">
                                         @if(is_numeric($metarUi['altimHpa']))
                                             {{ number_format($metarUi['altimHpa'], 1) }} hPa
                                         @else
@@ -246,16 +216,16 @@
                                     </div>
                                 </div>
 
-                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-white/60">Ceiling / Sky</div>
-                                    <div class="mt-2 text-lg font-black text-white">
+                                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                    <div class="font-mono text-[10px] uppercase tracking-widest text-white/50">Ceiling / Sky</div>
+                                    <div class="mt-2 text-lg font-bold text-white">
                                         @if(is_numeric($metarUi['ceilingFt']))
                                             {{ number_format($metarUi['ceilingFt']) }} <span class="text-sm text-white/60 font-semibold">ft</span>
                                         @else
                                             —
                                         @endif
                                     </div>
-                                    <div class="mt-2 text-xs text-white/50">{{ $metarUi['cover'] ?? '—' }}</div>
+                                    <div class="mt-2 font-mono text-[10px] text-white/40">{{ $metarUi['cover'] ?? '—' }}</div>
                                 </div>
                             @endif
                         </div>
@@ -263,8 +233,8 @@
                         <div class="mt-5 flex items-center justify-between text-xs text-white/50">
                             <span>{{ $metarTime?->format('Y-m-d H:i') ?? '—' }}Z</span>
                             <details class="group">
-                                <summary class="cursor-pointer select-none hover:text-white/70">Raw METAR/TAF</summary>
-                                <div class="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-white/80 font-mono whitespace-pre-wrap">
+                                <summary class="cursor-pointer select-none hover:text-white/70 font-mono text-[10px] uppercase tracking-widest">Raw METAR/TAF</summary>
+                                <div class="mt-3 rounded-lg border border-white/10 bg-white/5 p-4 text-white/80 font-mono text-xs whitespace-pre-wrap">
                                     {{ $metarRaw ?? ($wxMetarError ?? 'No METAR available.') }}
 
                                     {{ "\n\n" }}
@@ -276,74 +246,67 @@
                     </div>
                 </div>
 
-                {{-- ATIS tile (small but bold) --}}
-                <div class="{{ $tileBase }} lg:col-span-4 bg-gradient-to-br from-white via-slate-50 to-slate-100 border-gray-200">
+                {{-- ATIS Tile --}}
+                <div class="lg:col-span-4 bg-white rounded-xl shadow-card overflow-hidden">
                     <div class="p-6">
                         <div class="flex items-start justify-between">
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">ATIS</div>
+                                <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">ATIS</div>
                                 <div class="mt-1 text-lg font-bold text-gray-900">{{ $station ?? 'KAVL' }} ATIS</div>
-                                <div class="mt-2 text-xs text-gray-600">LiveATC link (no D-ATIS for AVL).</div>
+                                <div class="mt-2 text-xs text-slate-500">LiveATC link (no D-ATIS for AVL).</div>
                             </div>
-                            <div class="h-10 w-10 rounded-2xl bg-gray-900 text-white flex items-center justify-center font-black">
+                            <div class="h-10 w-10 rounded-xl bg-gray-900 text-white flex items-center justify-center font-bold text-sm">
                                 A
                             </div>
                         </div>
 
-                        <div class="mt-5 rounded-2xl border border-gray-200 bg-white p-4">
-                            <div class="text-xs text-gray-600">Frequency</div>
-                            <div class="mt-1 text-2xl font-black text-gray-900">120.200</div>
+                        <div class="mt-5 rounded-lg border border-surface-border bg-surface p-4">
+                            <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">Frequency</div>
+                            <div class="mt-1 text-2xl font-bold text-gray-900 font-mono">120.200</div>
                         </div>
 
                         <div class="mt-5 grid grid-cols-1 gap-3">
                             <a href="{{ $liveAtcAtisUrl }}" target="_blank"
-                               class="w-full inline-flex justify-center px-3 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
+                               class="w-full inline-flex justify-center px-3 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
                                 Listen on LiveATC
                             </a>
                             <a href="{{ $liveAtcAllFeedsUrl }}" target="_blank"
-                               class="w-full inline-flex justify-center px-3 py-2.5 rounded-xl border border-gray-300 bg-white text-sm text-gray-800 hover:bg-gray-50 shadow-sm">
+                               class="w-full inline-flex justify-center px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 hover:bg-gray-50 shadow-sm">
                                 View all feeds
                             </a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {{-- Today Inspections (bento tile) --}}
-                <div class="col-span-1 lg:col-span-6 w-full min-w-0">
-                    <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-slate-50 shadow-sm overflow-hidden hover:shadow-md transition">
-                        <div class="px-6 py-4 border-b border-emerald-100 flex items-center justify-between bg-white/60 backdrop-blur">
-                            <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-2xl bg-emerald-600/10 border border-emerald-200 flex items-center justify-center">
-                                    <span class="text-emerald-800 font-black">I</span>
-                                </div>
+            {{-- Today's Inspections + Open Work Orders Row --}}
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Today</div>
-                                    <div class="mt-0.5 text-lg font-bold text-gray-900">Inspections</div>
-                                    <div class="text-xs text-gray-600 mt-0.5">Latest submitted today</div>
-                                </div>
-                            </div>
-
-                            <a href="{{ route('inspections.index') }}" class="text-sm font-semibold text-emerald-800 hover:underline">
+                {{-- Today's Inspections --}}
+                <div class="lg:col-span-6">
+                    <div class="c139-card bg-white rounded-xl shadow-card overflow-hidden">
+                        <div class="px-6 py-4 border-b border-surface-border flex items-center justify-between">
+                            <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">Today</div>
+                            <a href="{{ route('inspections.index') }}" class="text-xs font-semibold text-brand hover:underline">
                                 View all
                             </a>
                         </div>
 
                         <div class="p-6">
                             @if($todayInspections->isEmpty())
-                                <div class="rounded-2xl border border-emerald-100 bg-white/70 p-4 text-sm text-gray-700">
+                                <div class="rounded-lg border border-surface-border bg-surface p-4 text-sm text-gray-700">
                                     <div class="font-semibold text-gray-900">None logged yet</div>
-                                    <div class="text-xs text-gray-600 mt-1">Create one to keep Part 139 cadence clean.</div>
+                                    <div class="text-xs text-slate-500 mt-1">Create one to keep Part 139 cadence clean.</div>
 
                                     <div class="mt-4">
                                         <a href="{{ route('inspections.create') }}"
-                                           class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-900 text-white text-sm font-semibold hover:bg-emerald-950 shadow-sm">
+                                           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
                                             <span class="text-base leading-none">+</span> Create Inspection
                                         </a>
                                     </div>
                                 </div>
                             @else
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
                                     @foreach($todayInspections as $insp)
                                         @php
                                             $header = is_array($insp->header ?? null) ? $insp->header : [];
@@ -366,36 +329,36 @@
                                             $pmT = $fmtTime($pm);
                                         @endphp
 
-                                        <div class="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-4 hover:shadow-md transition min-w-0">
+                                        <div class="rounded-lg border border-surface-border bg-white p-4 hover:shadow-sm transition">
                                             <div class="flex items-start justify-between gap-3">
                                                 <div class="min-w-0">
                                                     <a href="{{ route('inspections.show', $insp) }}"
-                                                       class="text-base font-bold text-emerald-900 hover:underline">
+                                                       class="text-sm font-bold text-gray-900 hover:text-brand hover:underline">
                                                         {{ $insp->insp_number }}
                                                     </a>
 
-                                                    <div class="mt-1 text-xs text-gray-600">
+                                                    <div class="mt-1 text-xs text-slate-500">
                                                         Inspector:
                                                         <span class="font-semibold text-gray-900">{{ $insp->inspector?->name ?? '—' }}</span>
                                                     </div>
 
-                                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-                                                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {{ $overallPill }}">
+                                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $overallPill }}">
                                                             {{ $overall }}
                                                         </span>
 
-                                                        <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5">
+                                                        <span class="inline-flex items-center rounded-full border border-surface-border bg-surface px-2 py-0.5 text-[10px] text-slate-500">
                                                             Logged: {{ $insp->created_at?->format('H:i') ?? '—' }}
                                                         </span>
 
                                                         @if($amT)
-                                                            <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5">
+                                                            <span class="inline-flex items-center rounded-full border border-surface-border bg-surface px-2 py-0.5 text-[10px] text-slate-500">
                                                                 AM: <span class="font-semibold text-gray-900 ml-1">{{ $amT }}</span>
                                                             </span>
                                                         @endif
 
                                                         @if($pmT)
-                                                            <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5">
+                                                            <span class="inline-flex items-center rounded-full border border-surface-border bg-surface px-2 py-0.5 text-[10px] text-slate-500">
                                                                 PM: <span class="font-semibold text-gray-900 ml-1">{{ $pmT }}</span>
                                                             </span>
                                                         @endif
@@ -404,11 +367,11 @@
 
                                                 <div class="flex flex-col items-end gap-2 shrink-0">
                                                     <a href="{{ route('inspections.print', $insp) }}" target="_blank"
-                                                       class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-800 hover:bg-gray-50">
+                                                       class="inline-flex items-center justify-center rounded-lg border border-surface-border bg-white px-3 py-1.5 text-[10px] font-semibold text-gray-700 hover:bg-surface">
                                                         Print
                                                     </a>
                                                     <a href="{{ route('inspections.pdf', $insp) }}"
-                                                       class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-800 hover:bg-gray-50">
+                                                       class="inline-flex items-center justify-center rounded-lg border border-surface-border bg-white px-3 py-1.5 text-[10px] font-semibold text-gray-700 hover:bg-surface">
                                                         PDF
                                                     </a>
                                                 </div>
@@ -421,42 +384,31 @@
                     </div>
                 </div>
 
-                {{-- Open Work Orders (bento tile) --}}
-                <div class="col-span-1 lg:col-span-6 w-full min-w-0">
-                    <div class="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 shadow-sm overflow-hidden hover:shadow-md transition">
-                        <div class="px-6 py-4 border-b border-blue-100 flex items-center justify-between bg-white/60 backdrop-blur">
-                            <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-2xl bg-blue-600/10 border border-blue-200 flex items-center justify-center">
-                                    <span class="text-blue-800 font-black">W</span>
-                                </div>
-
-                                <div>
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">Queue</div>
-                                    <div class="mt-0.5 text-lg font-bold text-gray-900">Open Work Orders</div>
-                                    <div class="text-xs text-gray-600 mt-0.5">Top priority / most recent</div>
-                                </div>
-                            </div>
-
-                            <a href="{{ route('work-orders.index') }}" class="text-sm font-semibold text-blue-800 hover:underline">
+                {{-- Open Work Orders --}}
+                <div class="lg:col-span-6">
+                    <div class="c139-card bg-white rounded-xl shadow-card overflow-hidden">
+                        <div class="px-6 py-4 border-b border-surface-border flex items-center justify-between">
+                            <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">Queue</div>
+                            <a href="{{ route('work-orders.index') }}" class="text-xs font-semibold text-brand hover:underline">
                                 View all
                             </a>
                         </div>
 
                         <div class="p-6">
                             @if($recentOpenWorkOrders->isEmpty())
-                                <div class="rounded-2xl border border-blue-100 bg-white/70 p-4 text-sm text-gray-700">
+                                <div class="rounded-lg border border-surface-border bg-surface p-4 text-sm text-gray-700">
                                     <div class="font-semibold text-gray-900">No open work orders</div>
-                                    <div class="text-xs text-gray-600 mt-1">Either you’re on top of it… or nobody is logging. Both are suspicious.</div>
+                                    <div class="text-xs text-slate-500 mt-1">Either you're on top of it... or nobody is logging.</div>
 
                                     <div class="mt-4">
                                         <a href="{{ route('work-orders.create') }}"
-                                           class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
+                                           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
                                             <span class="text-base leading-none">+</span> Create Work Order
                                         </a>
                                     </div>
                                 </div>
                             @else
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
                                     @foreach($recentOpenWorkOrders as $wo)
                                         @php
                                             $pri = $wo->priority ?? '—';
@@ -473,11 +425,11 @@
                                             $isOverdue = $due ? $due->isPast() : false;
                                         @endphp
 
-                                        <div class="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur p-4 hover:shadow-md transition min-w-0">
+                                        <div class="rounded-lg border border-surface-border bg-white p-4 hover:shadow-sm transition">
                                             <div class="flex items-start justify-between gap-3">
                                                 <div class="min-w-0">
                                                     <a href="{{ route('work-orders.show', $wo) }}"
-                                                       class="text-base font-bold text-blue-900 hover:underline">
+                                                       class="text-sm font-bold text-gray-900 hover:text-brand hover:underline">
                                                         {{ $wo->wo_number ?? ('WO-'.$wo->id) }}
                                                     </a>
 
@@ -485,22 +437,22 @@
                                                         {{ $wo->title }}
                                                     </div>
 
-                                                    <div class="mt-1 text-xs text-gray-600 truncate">
+                                                    <div class="mt-1 text-xs text-slate-500 truncate">
                                                         Location:
                                                         <span class="font-semibold text-gray-900">{{ $wo->location ?? '—' }}</span>
                                                     </div>
 
-                                                    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-                                                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {{ $priPill }}">
+                                                    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                                                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $priPill }}">
                                                             {{ $pri }}
                                                         </span>
 
-                                                        <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5">
+                                                        <span class="inline-flex items-center rounded-full border border-surface-border bg-surface px-2 py-0.5 text-[10px] text-slate-500">
                                                             Due: <span class="font-semibold text-gray-900 ml-1">{{ $dueLabel }}</span>
                                                         </span>
 
                                                         @if($isOverdue)
-                                                            <span class="inline-flex items-center rounded-full border border-red-200 bg-red-50 text-red-800 px-2 py-0.5 font-semibold">
+                                                            <span class="inline-flex items-center rounded-full border border-red-200 bg-red-50 text-red-800 px-2 py-0.5 text-[10px] font-semibold">
                                                                 Overdue
                                                             </span>
                                                         @endif
@@ -509,11 +461,11 @@
 
                                                 <div class="flex flex-col items-end gap-2 shrink-0">
                                                     <a href="{{ route('work-orders.show', $wo) }}"
-                                                       class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-800 hover:bg-gray-50">
+                                                       class="inline-flex items-center justify-center rounded-lg border border-surface-border bg-white px-3 py-1.5 text-[10px] font-semibold text-gray-700 hover:bg-surface">
                                                         View
                                                     </a>
                                                     <a href="{{ route('work-orders.edit', $wo) }}"
-                                                       class="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">
+                                                       class="inline-flex items-center justify-center rounded-lg border border-brand/20 bg-brand/5 px-3 py-1.5 text-[10px] font-semibold text-brand hover:bg-brand/10">
                                                         Edit
                                                     </a>
                                                 </div>
@@ -525,94 +477,106 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {{-- Recent Inspections (table tile) --}}
-                <div class="col-span-1 lg:col-span-12 w-full min-w-0">
-                    <div class="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-white via-slate-50 to-slate-100">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">History</div>
-                                <div class="mt-1 font-bold text-gray-900">Recent Inspections</div>
-                                <div class="text-xs text-gray-600 mt-1">Last 8 logged</div>
-                            </div>
-                            <a href="{{ route('inspections.index') }}" class="text-sm font-semibold text-blue-700 hover:underline">
-                                Go to inspections
-                            </a>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                <thead class="bg-slate-50 text-xs uppercase tracking-wide text-gray-600">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left font-semibold">INSP #</th>
-                                        <th class="px-4 py-3 text-left font-semibold">Date</th>
-                                        <th class="px-4 py-3 text-left font-semibold">Overall</th>
-                                        <th class="px-4 py-3 text-left font-semibold">Inspector</th>
-                                        <th class="px-4 py-3 text-right font-semibold">Actions</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    @forelse($recentInspections as $insp)
-                                        @php
-                                            $header = is_array($insp->header ?? null) ? $insp->header : [];
-                                            $overall = $header['overall_status'] ?? '—';
-
-                                            $overallPill = match ($overall) {
-                                                'Satisfactory'   => 'bg-green-100 text-green-800 border-green-200',
-                                                'Unsatisfactory' => 'bg-red-100 text-red-800 border-red-200',
-                                                default          => 'bg-gray-100 text-gray-800 border-gray-200',
-                                            };
-                                        @endphp
-
-                                        <tr class="hover:bg-slate-50">
-                                            <td class="px-4 py-3 font-semibold text-blue-700">
-                                                <a href="{{ route('inspections.show', $insp) }}" class="hover:underline">
-                                                    {{ $insp->insp_number }}
-                                                </a>
-                                            </td>
-
-                                            <td class="px-4 py-3 text-gray-900">
-                                                {{ $insp->inspection_date?->format('Y-m-d') ?? '—' }}
-                                            </td>
-
-                                            <td class="px-4 py-3">
-                                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold {{ $overallPill }}">
-                                                    {{ $overall }}
-                                                </span>
-                                            </td>
-
-                                            <td class="px-4 py-3 text-gray-900">
-                                                {{ $insp->inspector?->name ?? '—' }}
-                                            </td>
-
-                                            <td class="px-4 py-3 text-right">
-                                                <a href="{{ route('inspections.print', $insp) }}" target="_blank" class="text-gray-700 hover:underline mr-3">
-                                                    Print
-                                                </a>
-                                                <a href="{{ route('inspections.pdf', $insp) }}" class="text-gray-700 hover:underline">
-                                                    PDF
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="px-4 py-10 text-center text-gray-500">
-                                                No inspections found.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            {{-- Recent Inspections Table --}}
+            <div class="c139-card bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="px-6 py-4 border-b border-surface-border flex items-center justify-between">
+                    <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500">History</div>
+                    <a href="{{ route('inspections.index') }}" class="text-xs font-semibold text-brand hover:underline">
+                        Go to inspections
+                    </a>
                 </div>
 
+                <div class="overflow-x-auto">
+                    <table class="c139-table min-w-full text-sm">
+                        <thead class="bg-surface">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Insp #</th>
+                                <th class="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Date</th>
+                                <th class="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Overall</th>
+                                <th class="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Inspector</th>
+                                <th class="px-4 py-3 text-right font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Actions</th>
+                            </tr>
+                        </thead>
 
-</div>
+                        <tbody class="divide-y divide-surface-border bg-white">
+                            @forelse($recentInspections as $insp)
+                                @php
+                                    $header = is_array($insp->header ?? null) ? $insp->header : [];
+                                    $overall = $header['overall_status'] ?? '—';
 
+                                    $overallPill = match ($overall) {
+                                        'Satisfactory'   => 'bg-green-100 text-green-800 border-green-200',
+                                        'Unsatisfactory' => 'bg-red-100 text-red-800 border-red-200',
+                                        default          => 'bg-gray-100 text-gray-800 border-gray-200',
+                                    };
+                                @endphp
 
+                                <tr class="hover:bg-surface/50">
+                                    <td class="px-4 py-3 font-semibold text-brand">
+                                        <a href="{{ route('inspections.show', $insp) }}" class="hover:underline">
+                                            {{ $insp->insp_number }}
+                                        </a>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-gray-900">
+                                        {{ $insp->inspection_date?->format('Y-m-d') ?? '—' }}
+                                    </td>
+
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $overallPill }}">
+                                            {{ $overall }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-gray-900">
+                                        {{ $insp->inspector?->name ?? '—' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-right">
+                                        <a href="{{ route('inspections.print', $insp) }}" target="_blank" class="text-slate-500 hover:text-gray-900 hover:underline mr-3 text-xs">
+                                            Print
+                                        </a>
+                                        <a href="{{ route('inspections.pdf', $insp) }}" class="text-slate-500 hover:text-gray-900 hover:underline text-xs">
+                                            PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-4 py-10 text-center text-slate-500 text-sm">
+                                        No inspections found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
         </div>
+
+        {{-- Bottom Status Bar --}}
+        <div class="h-8 bg-brand flex items-center justify-between px-6">
+            <span class="font-mono text-[11px] text-white">CLEAR139 v1.0 - Asheville Regional Airport (KAVL)</span>
+            <span id="zulu-clock" class="font-mono text-[11px] text-white">--:--:--Z</span>
+        </div>
     </div>
+
+    @push('scripts')
+    <script>
+        (function() {
+            function updateZulu() {
+                var now = new Date();
+                var h = String(now.getUTCHours()).padStart(2, '0');
+                var m = String(now.getUTCMinutes()).padStart(2, '0');
+                var s = String(now.getUTCSeconds()).padStart(2, '0');
+                document.getElementById('zulu-clock').textContent = h + ':' + m + ':' + s + 'Z';
+            }
+            updateZulu();
+            setInterval(updateZulu, 1000);
+        })();
+    </script>
+    @endpush
 </x-sidebar-app-layout>

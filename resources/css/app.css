@@ -1,3 +1,148 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================
+   CLEAR139 Design System
+   ============================================ */
+
+@layer base {
+    :root {
+        /* Sidebar */
+        --sidebar-bg: #0E1520;
+        --sidebar-hover: #151F2E;
+        --sidebar-border: rgba(255, 255, 255, 0.06);
+
+        /* Content */
+        --surface-bg: #F5F7FA;
+        --surface-card: #FFFFFF;
+        --surface-border: #E4E9F0;
+
+        /* Brand */
+        --brand-blue: #2563EB;
+        --brand-blue-hover: #3B82F6;
+        --brand-amber: #D97706;
+        --brand-amber-light: #F59E0B;
+
+        /* Status */
+        --status-green: #16A34A;
+        --status-amber: #D97706;
+        --status-red: #DC2626;
+        --status-neutral: #64748B;
+
+        /* Shadows */
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --shadow-modal: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+}
+
+@layer components {
+    /* Panel header — consistent across all cards */
+    .panel-header {
+        @apply px-5 py-3.5 border-b flex items-center justify-between;
+        border-color: var(--surface-border);
+    }
+
+    .panel-header-label {
+        @apply font-mono text-[10px] font-semibold uppercase tracking-widest;
+        color: var(--status-neutral);
+    }
+
+    /* Status badge — pill with dot */
+    .badge {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold font-mono tracking-wide;
+    }
+
+    .badge-dot {
+        @apply h-1.5 w-1.5 rounded-full;
+    }
+
+    /* Card base */
+    .c139-card {
+        @apply bg-white rounded-xl overflow-hidden;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--surface-border);
+    }
+
+    /* Table rows */
+    .c139-table tbody tr {
+        @apply h-11 hover:bg-[#F8FAFC] transition-colors;
+    }
+
+    .c139-table th {
+        @apply font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-4 py-3 text-left;
+    }
+
+    .c139-table td {
+        @apply px-4 py-2.5 text-sm;
+    }
+}
+
+@layer utilities {
+    /* Pulse animation for active status dots */
+    .pulse-dot {
+        animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse-ring {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Login page animations */
+    .fade-up {
+        animation: fadeUp 0.6s ease-out both;
+    }
+
+    .fade-up-delay-1 { animation-delay: 0.1s; }
+    .fade-up-delay-2 { animation-delay: 0.2s; }
+    .fade-up-delay-3 { animation-delay: 0.3s; }
+    .fade-up-delay-4 { animation-delay: 0.4s; }
+    .fade-up-delay-5 { animation-delay: 0.5s; }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Word reveal for login headline */
+    .word-reveal {
+        animation: wordReveal 0.7s ease-out both;
+    }
+
+    .word-reveal-1 { animation-delay: 0.2s; }
+    .word-reveal-2 { animation-delay: 0.5s; }
+    .word-reveal-3 { animation-delay: 0.8s; }
+
+    @keyframes wordReveal {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+            filter: blur(4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+    }
+
+    /* Sidebar glow */
+    .sidebar-glow {
+        background: radial-gradient(ellipse at 20% 100%, rgba(37, 99, 235, 0.08) 0%, transparent 60%);
+    }
+
+    /* Grid overlay texture */
+    .grid-overlay {
+        background-image:
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+}

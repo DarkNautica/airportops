@@ -26,7 +26,8 @@
       "Bash(php.bat -l app/Enums/WorkOrderStatus.php)",
       "Bash(php.bat -l app/Enums/WorkOrderPriority.php)",
       "Bash(php.bat -l app/Http/Requests/StoreInspectionRequest.php)",
-      "Bash(php.bat -l app/Http/Requests/UpdateInspectionRequest.php)"
+      "Bash(php.bat -l app/Http/Requests/UpdateInspectionRequest.php)",
+      "Bash(npx vite:*)"
     ]
   }
 }

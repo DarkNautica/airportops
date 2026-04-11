@@ -1,51 +1,46 @@
 {{-- resources/views/inspections/show.blade.php --}}
 <x-sidebar-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <div class="text-xs text-gray-500">Part 139 Daily Safety Self-Inspection</div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Inspection {{ $inspection->insp_number }}
-                </h2>
-            </div>
+        <h1 class="font-instrument text-xl text-gray-900">Inspection {{ $inspection->insp_number }}</h1>
+    </x-slot>
 
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('inspections.index') }}"
-                   class="px-3 py-1.5 rounded border text-sm text-gray-700 hover:bg-gray-50">
-                    ← Back
+    <x-slot name="actions">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('inspections.index') }}"
+               class="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 shadow-sm">
+                &larr; Back
+            </a>
+
+            <a href="{{ route('inspections.print', $inspection) }}"
+               target="_blank"
+               class="inline-flex items-center px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 shadow-sm">
+                Print
+            </a>
+
+            <a href="{{ route('inspections.pdf', $inspection) }}"
+               class="inline-flex items-center px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 shadow-sm">
+                PDF
+            </a>
+
+            @can('update', $inspection)
+                <a href="{{ route('inspections.edit', $inspection) }}"
+                   class="inline-flex items-center px-3 py-2 rounded-md bg-gray-900 text-white text-sm font-semibold hover:bg-black shadow-sm">
+                    Edit
                 </a>
+            @endcan
 
-                <a href="{{ route('inspections.print', $inspection) }}"
-                   target="_blank"
-                   class="px-3 py-1.5 rounded border text-sm text-gray-700 hover:bg-gray-50">
-                    Print
-                </a>
-
-                <a href="{{ route('inspections.pdf', $inspection) }}"
-                   class="px-3 py-1.5 rounded border text-sm text-gray-700 hover:bg-gray-50">
-                    PDF
-                </a>
-
-                @can('update', $inspection)
-                    <a href="{{ route('inspections.edit', $inspection) }}"
-                       class="px-3 py-1.5 rounded bg-indigo-600 text-white text-sm hover:bg-indigo-700">
-                        Edit
-                    </a>
-                @endcan
-
-                @can('delete', $inspection)
-                    <form method="POST"
-                          action="{{ route('inspections.destroy', $inspection) }}"
-                          onsubmit="return confirm('Delete this inspection record? This cannot be undone.');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="px-3 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700">
-                            Delete
-                        </button>
-                    </form>
-                @endcan
-            </div>
+            @can('delete', $inspection)
+                <form method="POST"
+                      action="{{ route('inspections.destroy', $inspection) }}"
+                      onsubmit="return confirm('Delete this inspection record? This cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="inline-flex items-center px-3 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 text-sm font-semibold hover:bg-red-100 shadow-sm">
+                        Delete
+                    </button>
+                </form>
+            @endcan
         </div>
     </x-slot>
 
@@ -59,8 +54,6 @@
 
         $locked = (bool) ($inspection->is_locked ?? false);
 
-        // If you want pretty labels in the show view, keep this list matching create/print.
-        // If a key isn't found here, the table will fall back to showing the raw key.
         $labels = [
             'pavement_lip_over_3' => 'Pavement lip over 3"',
             'holes_over_5_dia' => 'Holes > 5" dia, > 3" deep',
@@ -101,7 +94,6 @@
             'construction_equipment_parking' => 'Equipment parking',
         ];
 
-        // Checklist stats (S/U/NA)
         $amCounts = ['S' => 0, 'U' => 0, 'NA' => 0];
         $pmCounts = ['S' => 0, 'U' => 0, 'NA' => 0];
 
@@ -113,198 +105,252 @@
         }
 
         $overall = $header['overall_status'] ?? null;
-        $overallBadge = match ($overall) {
-            'Satisfactory' => 'bg-green-100 text-green-800 border-green-200',
-            'Unsatisfactory' => 'bg-red-100 text-red-800 border-red-200',
-            default => 'bg-gray-100 text-gray-800 border-gray-200',
+        $overallVariant = match ($overall) {
+            'Satisfactory' => 'satisfactory',
+            'Unsatisfactory' => 'unsatisfactory',
+            default => 'neutral',
         };
 
-        $lockBadge = $locked
-            ? 'bg-green-100 text-green-800 border-green-200'
-            : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-
-        $badge = function ($v) {
+        $checkBadgeVariant = function ($v) {
             return match ($v) {
-                'S' => 'bg-green-50 text-green-800 border-green-200',
-                'U' => 'bg-red-50 text-red-800 border-red-200',
-                'NA' => 'bg-gray-50 text-gray-800 border-gray-200',
-                default => 'bg-white text-gray-500 border-gray-200',
+                'S' => 'satisfactory',
+                'U' => 'unsatisfactory',
+                'NA' => 'neutral',
+                default => 'neutral',
             };
         };
     @endphp
 
-    <div class="py-10">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="min-h-screen bg-surface pb-10">
+        <div class="w-full px-6 lg:px-10 py-8 space-y-6">
 
             {{-- FLASH BANNERS --}}
             @if (session('success'))
-                <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm">
-                    <span class="font-semibold">Success:</span> {{ session('success') }}
+                <div class="bg-white rounded-xl shadow-card overflow-hidden border-l-4 border-l-emerald-400">
+                    <div class="px-5 py-4 flex items-start gap-3">
+                        <x-status-dot color="green" :pulse="true" size="md" class="mt-1" />
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">Success</div>
+                            <div class="text-sm text-gray-600 mt-0.5">{{ session('success') }}</div>
+                        </div>
+                    </div>
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 text-sm">
-                    <span class="font-semibold">Blocked:</span> {{ session('error') }}
+                <div class="bg-white rounded-xl shadow-card overflow-hidden border-l-4 border-l-red-400">
+                    <div class="px-5 py-4 flex items-start gap-3">
+                        <x-status-dot color="red" :pulse="true" size="md" class="mt-1" />
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">Blocked</div>
+                            <div class="text-sm text-gray-600 mt-0.5">{{ session('error') }}</div>
+                        </div>
+                    </div>
                 </div>
             @endif
 
-            {{-- COMMAND BAR --}}
-            <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div class="text-sm text-gray-700">
-                    <span class="font-semibold">Lock State:</span>
-                    <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded border text-xs font-semibold {{ $lockBadge }}">
-                        {{ $locked ? 'LOCKED' : 'OPEN' }}
-                    </span>
-
-                    @if($locked)
-                        <span class="ml-3 text-xs text-gray-500">
-                            Locked at {{ $inspection->locked_at?->format('m/d/Y H:i') ?? '—' }}
-                            by {{ optional($inspection->lockedBy)->name ?? '—' }}
-                        </span>
-                    @endif
-                </div>
-
-                <div class="flex flex-wrap gap-2">
-                    @can('certify', $inspection)
-                        @if(!$locked)
-                            <form method="POST" action="{{ route('inspections.certify', $inspection) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="px-3 py-1.5 rounded bg-green-600 text-white text-sm hover:bg-green-700"
-                                        onclick="return confirm('Certify and lock this inspection?');">
-                                    Certify & Lock
-                                </button>
-                            </form>
-                        @endif
-                    @endcan
-
-                    @can('unlock', $inspection)
+            {{-- LOCK STATE & CERTIFICATION STRIP --}}
+            <div class="c139-card">
+                <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Lock State:</span>
                         @if($locked)
-                            <form method="POST" action="{{ route('inspections.unlock', $inspection) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="px-3 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700"
-                                        onclick="return confirm('Unlock this inspection?');">
-                                    Unlock
-                                </button>
-                            </form>
+                            <x-badge variant="locked">Locked</x-badge>
+                        @else
+                            <x-badge variant="open">Open</x-badge>
                         @endif
-                    @endcan
+
+                        @if($locked)
+                            <span class="font-mono text-[11px] text-slate-500">
+                                Locked {{ $inspection->locked_at?->format('m/d/Y H:i') ?? '—' }}
+                                by {{ optional($inspection->lockedBy)->name ?? '—' }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        @can('certify', $inspection)
+                            @if(!$locked)
+                                <form method="POST" action="{{ route('inspections.certify', $inspection) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 shadow-sm transition"
+                                            onclick="return confirm('Certify and lock this inspection?');">
+                                        Certify & Lock
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
+
+                        @can('unlock', $inspection)
+                            @if($locked)
+                                <form method="POST" action="{{ route('inspections.unlock', $inspection) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm font-semibold hover:bg-red-100 shadow-sm transition"
+                                            onclick="return confirm('Unlock this inspection?');">
+                                        Unlock
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
+                    </div>
                 </div>
             </div>
 
-            {{-- SUMMARY STRIP --}}
-            <div class="bg-white shadow-sm rounded-lg border">
-                <div class="p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
-                    <div>
-                        <div class="text-gray-500">Date</div>
-                        <div class="font-semibold text-gray-900">{{ $fmtDate($inspection->inspection_date) }}</div>
-                    </div>
-
-                    <div>
-                        <div class="text-gray-500">Overall</div>
-                        <div class="inline-flex items-center px-2 py-1 rounded border text-xs font-semibold {{ $overallBadge }}">
-                            {{ $val($overall) }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="text-gray-500">Status</div>
-                        <div class="inline-flex items-center px-2 py-1 rounded border text-xs font-semibold {{ $lockBadge }}">
-                            {{ $locked ? 'Locked (Certified)' : 'Open (Editable)' }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="text-gray-500">Inspector</div>
-                        <div class="font-semibold text-gray-900">{{ $inspection->inspector?->name ?? '—' }}</div>
+            {{-- SUMMARY CARDS --}}
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl shadow-card border border-surface-border overflow-hidden">
+                    <div class="h-[2px] bg-[#2563EB]"></div>
+                    <div class="p-5">
+                        <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Date</div>
+                        <div class="mt-1 text-lg font-semibold text-gray-900">{{ $fmtDate($inspection->inspection_date) }}</div>
+                        <div class="mt-1 text-xs text-slate-500">{{ $val($header['inspection_day'] ?? null) }}</div>
                     </div>
                 </div>
 
-                @if($locked)
-                    <div class="px-4 pb-4 text-xs text-gray-600">
-                        Certified at <span class="font-medium">{{ $inspection->certified_at?->format('m/d/Y H:i') ?? '—' }}</span>
-                        by <span class="font-medium">{{ optional($inspection->certifiedBy)->name ?? '—' }}</span>
+                <div class="bg-white rounded-xl shadow-card border border-surface-border overflow-hidden">
+                    <div class="h-[2px] {{ $overall === 'Satisfactory' ? 'bg-[#16A34A]' : ($overall === 'Unsatisfactory' ? 'bg-[#DC2626]' : 'bg-slate-300') }}"></div>
+                    <div class="p-5">
+                        <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Overall</div>
+                        <div class="mt-2">
+                            <x-badge :variant="$overallVariant">{{ $val($overall) }}</x-badge>
+                        </div>
                     </div>
-                @endif
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-surface-border overflow-hidden">
+                    <div class="h-[2px] {{ $locked ? 'bg-slate-400' : 'bg-[#2563EB]' }}"></div>
+                    <div class="p-5">
+                        <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Status</div>
+                        <div class="mt-2">
+                            @if($locked)
+                                <x-badge variant="certified">Certified</x-badge>
+                            @else
+                                <x-badge variant="open">Editable</x-badge>
+                            @endif
+                        </div>
+                        @if($locked)
+                            <div class="mt-2 font-mono text-[11px] text-slate-500">
+                                {{ $inspection->certified_at?->format('m/d/Y H:i') ?? '—' }}
+                                by {{ optional($inspection->certifiedBy)->name ?? '—' }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card border border-surface-border overflow-hidden">
+                    <div class="h-[2px] bg-[#8B5CF6]"></div>
+                    <div class="p-5">
+                        <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Inspector</div>
+                        <div class="mt-1 text-lg font-semibold text-gray-900">{{ $inspection->inspector?->name ?? '—' }}</div>
+                    </div>
+                </div>
             </div>
 
-            {{-- TIMES --}}
+            {{-- TIMES & CHECKLIST SNAPSHOT --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white shadow-sm rounded-lg border p-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">Inspection Times</h3>
+                {{-- Times --}}
+                <div class="c139-card">
+                    <div class="panel-header">
+                        <span class="panel-header-label">Inspection Times</span>
+                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div class="rounded border bg-gray-50 p-3">
-                            <div class="text-gray-500">Crash Phone Test</div>
-                            <div class="font-semibold text-gray-900">{{ $fmtTime($header['crash_phone_test_time'] ?? null) }}</div>
-                            <div class="text-xs text-gray-500 mt-1">By: {{ $val($header['by_1'] ?? null) }}</div>
+                    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="rounded-lg border border-surface-border bg-[#F8FAFC] p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Crash Phone Test</div>
+                            <div class="mt-1 font-mono text-[11px] font-semibold text-gray-900">{{ $fmtTime($header['crash_phone_test_time'] ?? null) }}</div>
+                            <div class="mt-1 text-xs text-slate-500">By: {{ $val($header['by_1'] ?? null) }}</div>
                         </div>
 
-                        <div class="rounded border bg-gray-50 p-3">
-                            <div class="text-gray-500">AM Inspection</div>
-                            <div class="font-semibold text-gray-900">{{ $fmtTime($header['am_time'] ?? null) }}</div>
-                            <div class="text-xs text-gray-500 mt-1">By: {{ $val($header['by_2'] ?? null) }}</div>
+                        <div class="rounded-lg border border-surface-border bg-[#F8FAFC] p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">AM Inspection</div>
+                            <div class="mt-1 font-mono text-[11px] font-semibold text-gray-900">{{ $fmtTime($header['am_time'] ?? null) }}</div>
+                            <div class="mt-1 text-xs text-slate-500">By: {{ $val($header['by_2'] ?? null) }}</div>
                         </div>
 
-                        <div class="rounded border bg-gray-50 p-3">
-                            <div class="text-gray-500">PM Inspection</div>
-                            <div class="font-semibold text-gray-900">{{ $fmtTime($header['pm_time'] ?? null) }}</div>
-                            <div class="text-xs text-gray-500 mt-1">By: {{ $val($header['by_3'] ?? null) }}</div>
+                        <div class="rounded-lg border border-surface-border bg-[#F8FAFC] p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">PM Inspection</div>
+                            <div class="mt-1 font-mono text-[11px] font-semibold text-gray-900">{{ $fmtTime($header['pm_time'] ?? null) }}</div>
+                            <div class="mt-1 text-xs text-slate-500">By: {{ $val($header['by_3'] ?? null) }}</div>
                         </div>
 
-                        <div class="rounded border bg-gray-50 p-3">
-                            <div class="text-gray-500">Other Inspection</div>
-                            <div class="font-semibold text-gray-900">{{ $fmtTime($header['other_time'] ?? null) }}</div>
-                            <div class="text-xs text-gray-500 mt-1">By: {{ $val($header['by_4'] ?? null) }}</div>
+                        <div class="rounded-lg border border-surface-border bg-[#F8FAFC] p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">Other Inspection</div>
+                            <div class="mt-1 font-mono text-[11px] font-semibold text-gray-900">{{ $fmtTime($header['other_time'] ?? null) }}</div>
+                            <div class="mt-1 text-xs text-slate-500">By: {{ $val($header['by_4'] ?? null) }}</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white shadow-sm rounded-lg border p-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">Checklist Snapshot</h3>
+                {{-- Checklist Snapshot --}}
+                <div class="c139-card">
+                    <div class="panel-header">
+                        <span class="panel-header-label">Checklist Snapshot</span>
+                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div class="rounded border p-4">
-                            <div class="text-gray-500 font-medium mb-2">AM Counts</div>
-                            <div class="flex items-center justify-between"><span>S</span><span class="font-semibold">{{ $amCounts['S'] }}</span></div>
-                            <div class="flex items-center justify-between"><span>U</span><span class="font-semibold">{{ $amCounts['U'] }}</span></div>
-                            <div class="flex items-center justify-between"><span>N/A</span><span class="font-semibold">{{ $amCounts['NA'] }}</span></div>
+                    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="rounded-lg border border-surface-border p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-3">AM Counts</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">Satisfactory</span>
+                                    <span class="font-mono text-[11px] font-semibold text-emerald-700">{{ $amCounts['S'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">Unsatisfactory</span>
+                                    <span class="font-mono text-[11px] font-semibold text-red-700">{{ $amCounts['U'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">N/A</span>
+                                    <span class="font-mono text-[11px] font-semibold text-slate-600">{{ $amCounts['NA'] }}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="rounded border p-4">
-                            <div class="text-gray-500 font-medium mb-2">PM Counts</div>
-                            <div class="flex items-center justify-between"><span>S</span><span class="font-semibold">{{ $pmCounts['S'] }}</span></div>
-                            <div class="flex items-center justify-between"><span>U</span><span class="font-semibold">{{ $pmCounts['U'] }}</span></div>
-                            <div class="flex items-center justify-between"><span>N/A</span><span class="font-semibold">{{ $pmCounts['NA'] }}</span></div>
+                        <div class="rounded-lg border border-surface-border p-4">
+                            <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-3">PM Counts</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">Satisfactory</span>
+                                    <span class="font-mono text-[11px] font-semibold text-emerald-700">{{ $pmCounts['S'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">Unsatisfactory</span>
+                                    <span class="font-mono text-[11px] font-semibold text-red-700">{{ $pmCounts['U'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">N/A</span>
+                                    <span class="font-mono text-[11px] font-semibold text-slate-600">{{ $pmCounts['NA'] }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="text-xs text-gray-500 mt-3">
-                        Counts are based on saved checklist JSON values.
+                    <div class="px-5 pb-4 font-mono text-[10px] text-slate-400">
+                        Counts based on saved checklist JSON values.
                     </div>
                 </div>
             </div>
 
-            {{-- CHECKLIST --}}
-            <div class="bg-white shadow-sm rounded-lg border">
-                <div class="p-6 flex items-center justify-between">
-                    <h3 class="font-semibold text-gray-900">Checklist</h3>
-                    <div class="text-xs text-gray-500">AM/PM show S / U / N/A</div>
+            {{-- CHECKLIST TABLE --}}
+            <div class="c139-card">
+                <div class="panel-header">
+                    <span class="panel-header-label">Checklist</span>
+                    <span class="font-mono text-[10px] text-slate-500">AM / PM: S / U / N/A</span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead class="bg-gray-50 text-gray-700">
+                    <table class="c139-table w-full">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-2 text-left font-semibold border-t border-b">Item</th>
-                                <th class="px-4 py-2 text-center font-semibold border-t border-b w-24">AM</th>
-                                <th class="px-4 py-2 text-center font-semibold border-t border-b w-24">PM</th>
-                                <th class="px-4 py-2 text-left font-semibold border-t border-b">Remarks</th>
+                                <th class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-4 py-3 text-left">Item</th>
+                                <th class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-4 py-3 text-center w-24">AM</th>
+                                <th class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-4 py-3 text-center w-24">PM</th>
+                                <th class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 px-4 py-3 text-left">Remarks</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y">
+                        <tbody class="divide-y divide-surface-border">
                             @forelse($checklist as $key => $row)
                                 @php
                                     $am = strtoupper((string)($row['am'] ?? ''));
@@ -314,31 +360,35 @@
                                     $label = $labels[$key] ?? $key;
                                 @endphp
 
-                                <tr>
-                                    <td class="px-4 py-2 text-gray-900 font-medium">
+                                <tr class="h-11 hover:bg-[#F8FAFC] transition-colors">
+                                    <td class="px-4 py-2.5 text-sm text-gray-900 font-medium">
                                         {{ $label }}
                                         @if(!isset($labels[$key]))
-                                            <div class="text-xs text-gray-400 font-normal">{{ $key }}</div>
+                                            <div class="font-mono text-[10px] text-slate-400 font-normal">{{ $key }}</div>
                                         @endif
                                     </td>
 
-                                    <td class="px-4 py-2 text-center">
-                                        <span class="inline-flex items-center justify-center w-12 h-7 rounded border text-[11px] font-bold leading-none {{ $badge($am) }}">
-                                            {{ $am ?: '—' }}
-                                        </span>
+                                    <td class="px-4 py-2.5 text-center">
+                                        @if($am)
+                                            <x-badge :variant="$checkBadgeVariant($am)" :dot="false">{{ $am === 'NA' ? 'N/A' : $am }}</x-badge>
+                                        @else
+                                            <span class="text-slate-400 text-xs">—</span>
+                                        @endif
                                     </td>
 
-                                    <td class="px-4 py-2 text-center">
-                                        <span class="inline-flex items-center justify-center w-12 h-7 rounded border text-[11px] font-bold leading-none {{ $badge($pm) }}">
-                                            {{ $pm ?: '—' }}
-                                        </span>
+                                    <td class="px-4 py-2.5 text-center">
+                                        @if($pm)
+                                            <x-badge :variant="$checkBadgeVariant($pm)" :dot="false">{{ $pm === 'NA' ? 'N/A' : $pm }}</x-badge>
+                                        @else
+                                            <span class="text-slate-400 text-xs">—</span>
+                                        @endif
                                     </td>
 
-                                    <td class="px-4 py-2 text-gray-800">{{ $rm }}</td>
+                                    <td class="px-4 py-2.5 text-sm text-gray-800">{{ $rm }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-4 py-6 text-center text-gray-500">
+                                    <td colspan="4" class="px-4 py-16 text-center text-slate-400 text-sm">
                                         No checklist data recorded.
                                     </td>
                                 </tr>
@@ -349,10 +399,12 @@
             </div>
 
             {{-- FINDINGS --}}
-            <div class="bg-white shadow-sm rounded-lg border p-6">
-                <h3 class="font-semibold text-gray-900 mb-2">General Findings / Notes</h3>
-                <div class="whitespace-pre-wrap text-sm text-gray-800">
-                    {{ $inspection->findings ?? '—' }}
+            <div class="c139-card">
+                <div class="panel-header">
+                    <span class="panel-header-label">Findings</span>
+                </div>
+                <div class="p-5">
+                    <div class="whitespace-pre-wrap text-sm text-gray-800">{{ $inspection->findings ?? '—' }}</div>
                 </div>
             </div>
 
@@ -386,30 +438,27 @@
                 $fmt = fn($v) => ($v === null || $v === '') ? '—' : $v;
             @endphp
 
-            <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-200 bg-slate-50 flex justify-between">
-                    <div>
-                        <div class="text-xs uppercase font-semibold tracking-wide text-gray-500">Audit Trail</div>
-                        <div class="mt-1 text-base font-semibold text-gray-900">Change History</div>
-                    </div>
-                    <div class="text-xs text-gray-500">
+            <div class="c139-card">
+                <div class="panel-header">
+                    <span class="panel-header-label">Audit Trail</span>
+                    <span class="font-mono text-[10px] text-slate-500">
                         {{ $auditLogs->count() }} event{{ $auditLogs->count() === 1 ? '' : 's' }}
-                    </div>
+                    </span>
                 </div>
 
-                <div class="p-6">
+                <div class="p-5">
                     <ol class="space-y-4">
                         @foreach($auditLogs as $log)
                             @php
                                 $evt = $log->event ?? 'event';
 
-                                $evtPill = match ($evt) {
-                                    'created' => 'bg-emerald-50 text-emerald-800 ring-emerald-600/20',
-                                    'updated', 'status_changed' => 'bg-blue-50 text-blue-800 ring-blue-600/20',
-                                    'certified' => 'bg-indigo-50 text-indigo-800 ring-indigo-600/20',
-                                    'unlocked' => 'bg-gray-50 text-gray-800 ring-gray-600/20',
-                                    'deleted' => 'bg-red-50 text-red-800 ring-red-600/20',
-                                    default => 'bg-gray-50 text-gray-800 ring-gray-600/20',
+                                $evtVariant = match ($evt) {
+                                    'created' => 'certified',
+                                    'updated', 'status_changed' => 'open',
+                                    'certified' => 'active',
+                                    'unlocked' => 'neutral',
+                                    'deleted' => 'critical',
+                                    default => 'neutral',
                                 };
 
                                 $props = is_array($log->properties ?? null) ? $log->properties : [];
@@ -430,33 +479,31 @@
                                 }
                             @endphp
 
-                            <li class="rounded-2xl border border-gray-200 p-4 bg-white hover:shadow-md transition">
-                                <div class="flex flex-wrap items-center gap-2 text-xs">
-                                    <span class="inline-flex px-2 py-1 rounded-md font-semibold ring-1 ring-inset {{ $evtPill }}">
-                                        {{ strtoupper(str_replace('_',' ',$evt)) }}
-                                    </span>
-                                    <span class="text-gray-500">{{ $log->created_at?->format('Y-m-d H:i:s') }}</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="font-semibold text-gray-700">
+                            <li class="rounded-xl border border-surface-border p-4 bg-white hover:shadow-md transition">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <x-badge :variant="$evtVariant">{{ strtoupper(str_replace('_',' ',$evt)) }}</x-badge>
+                                    <span class="font-mono text-[11px] text-slate-500">{{ $log->created_at?->format('Y-m-d H:i:s') }}</span>
+                                    <span class="text-slate-300">&middot;</span>
+                                    <span class="text-sm font-semibold text-gray-700">
                                         {{ $log->causer?->name ?? 'System' }}
                                     </span>
                                     @if($log->ip)
-                                        <span class="text-gray-400">|</span>
-                                        <span class="text-gray-600">IP {{ $log->ip }}</span>
+                                        <span class="text-slate-300">|</span>
+                                        <span class="font-mono text-[11px] text-slate-500">IP {{ $log->ip }}</span>
                                     @endif
                                 </div>
 
                                 <div class="mt-3">
                                     @if(empty($changes))
-                                        <div class="text-sm text-gray-600">No meaningful field changes recorded.</div>
+                                        <div class="text-sm text-slate-400">No meaningful field changes recorded.</div>
                                     @else
-                                        <div class="text-xs uppercase font-semibold text-gray-500">Key changes</div>
-                                        <ul class="mt-2 space-y-1 text-sm">
+                                        <div class="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">Key Changes</div>
+                                        <ul class="space-y-1 text-sm">
                                             @foreach($changes as $k => $chg)
                                                 <li>
-                                                    <span class="font-semibold">{{ $humanKey($k) }}:</span>
-                                                    <span class="text-gray-600">{{ $fmt($chg['old']) }}</span>
-                                                    <span class="mx-1 text-gray-400 font-black">→</span>
+                                                    <span class="font-semibold text-gray-900">{{ $humanKey($k) }}:</span>
+                                                    <span class="text-slate-500">{{ $fmt($chg['old']) }}</span>
+                                                    <span class="mx-1 text-slate-300 font-black">&rarr;</span>
                                                     <span class="text-gray-900">{{ $fmt($chg['new']) }}</span>
                                                 </li>
                                             @endforeach
@@ -468,9 +515,6 @@
                     </ol>
                 </div>
             </div>
-
-
-
 
         </div>
     </div>

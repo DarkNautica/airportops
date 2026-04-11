@@ -8,19 +8,39 @@
     <style>
         @page { margin: 18px 20px; }
 
-        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #111; }
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 11px;
+            color: #111;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* BRANDING */
+        .brand {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .brand-name {
+            font-family: DejaVu Sans Mono, monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .brand-clear { color: #111; }
+        .brand-139 { color: #D97706; }
+
         .center { text-align: center; }
-        .title { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
-        .subtitle { font-size: 13px; font-weight: 700; margin-top: 2px; }
-        .subnote { font-size: 10px; color: #444; margin-top: 2px; }
+        .title { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
+        .subtitle { font-size: 12px; font-weight: 700; margin-top: 2px; }
+        .subnote { font-size: 9px; color: #64748B; margin-top: 2px; }
 
         /* META */
-        table.meta { margin-top: 12px; width: 100%; border-collapse: collapse; }
-        .meta td { padding: 4px 6px; vertical-align: middle; }
-        .meta .label { width: 10%; font-weight: 700; color: #222; }
-        .meta .value { width: 23%; border-bottom: 1px solid #bbb; }
+        table.meta { margin-top: 10px; width: 100%; border-collapse: collapse; }
+        .meta td { padding: 3px 6px; vertical-align: middle; }
+        .meta .label { width: 10%; font-weight: 700; color: #222; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta .value { width: 23%; border-bottom: 1px solid #CBD5E1; }
 
-        /* forces values to sit “on the line” consistently (fixes the high text look) */
         .linebox { height: 16px; line-height: 16px; display: block; padding-top: 1px; }
 
         /* TIME BLOCKS */
@@ -29,60 +49,101 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            border-top: 1px solid #bbb;
-            border-bottom: 1px solid #bbb;
+            border: 1px solid #CBD5E1;
         }
         table.times th, table.times td { padding: 4px 6px; }
         table.times th {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
-            text-align: center; /* ✅ centered headings */
-            color: #222;
+            text-align: center;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #CBD5E1;
         }
         table.times td { vertical-align: middle; }
 
-        .sep-right { border-right: 1px solid #bbb; } /* ✅ visual separators */
+        .sep-right { border-right: 1px solid #CBD5E1; }
 
-        .time-label { width: 6%; font-weight: 700; }
-        .time-val   { width: 10%; border-bottom: 1px solid #bbb; }
-        .by-label   { width: 4%; font-weight: 700; }
-        .by-val     { width: 15%; border-bottom: 1px solid #bbb; }
+        .time-label { width: 6%; font-weight: 700; font-size: 10px; color: #64748B; }
+        .time-val   { width: 10%; border-bottom: 1px solid #CBD5E1; }
+        .by-label   { width: 4%; font-weight: 700; font-size: 10px; color: #64748B; }
+        .by-val     { width: 15%; border-bottom: 1px solid #CBD5E1; }
+
+        /* SECTION HEADER */
+        .section-header {
+            margin-top: 12px;
+            font-weight: 700;
+            color: #111;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid #111;
+        }
 
         /* CHECKLIST */
-        .section-header { margin-top: 12px; font-weight: 700; color: #111; }
-
         table.checklist { width: 100%; border-collapse: collapse; margin-top: 6px; }
-        table.checklist th, table.checklist td { border: 1px solid #222; padding: 5px 6px; vertical-align: middle; }
-        table.checklist th { background: #f2f2f2; font-weight: 700; }
+        table.checklist th, table.checklist td {
+            border: 1px solid #CBD5E1;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+        table.checklist th {
+            background: #F8FAFC;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748B;
+        }
 
         .col-item { width: 68%; }
         .col-state { width: 6%; text-align: center; }
         .col-remarks { width: 20%; }
 
-        /* AM/PM state box (S/U/N/A) — tight + centered for DOMPDF */
-        .state-box{
-            display:inline-block;
-            width: 14px;
-            height: 14px;
-            line-height: 14px;
-            border:1px solid #111;
-            text-align:center;
-            font-weight:700;
+        /* AM/PM state box */
+        .state-box {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            line-height: 16px;
+            border: 1px solid #CBD5E1;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: 700;
             font-size: 9px;
             vertical-align: middle;
         }
-        .state-box.na {
-            font-size: 7.5px; /* N/A fits */
-            letter-spacing: -0.3px;
-        }
+        .state-box.s-val { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+        .state-box.u-val { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
+        .state-box.na { font-size: 7px; letter-spacing: -0.3px; background: #F8FAFC; color: #64748B; }
 
         /* NOTES */
         .notes {
-            margin-top: 10px;
-            border: 1px solid #222;
+            margin-top: 8px;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
             padding: 8px;
             min-height: 60px;
             white-space: pre-wrap;
+            font-size: 10px;
+        }
+
+        /* FOOTER */
+        .print-footer {
+            margin-top: 16px;
+            padding-top: 6px;
+            border-top: 1px solid #CBD5E1;
+            font-size: 8px;
+            color: #94A3B8;
+            text-align: center;
+            font-family: DejaVu Sans Mono, monospace;
+        }
+
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -124,6 +185,15 @@
     };
 
     $isNA = fn(?string $s) => $s === 'NA';
+    $isS = fn(?string $s) => $s === 'S';
+    $isU = fn(?string $s) => $s === 'U';
+
+    $stateClass = function(?string $s) use ($isS, $isU, $isNA): string {
+        if ($isS($s)) return 's-val';
+        if ($isU($s)) return 'u-val';
+        if ($isNA($s)) return 'na';
+        return '';
+    };
 
     $remarks = function(string $key) use ($checklist): string {
         $r = data_get($checklist, "{$key}.remarks", '');
@@ -147,11 +217,15 @@
     $byOther = $header['by_4'] ?? null;
 @endphp
 
-{{-- HEADER --}}
+{{-- BRANDING + HEADER --}}
+<div class="brand">
+    <div class="brand-name"><span class="brand-clear">CLEAR</span><span class="brand-139">139</span></div>
+</div>
+
 <div class="center">
     <div class="title">{{ $airportName }}</div>
     <div class="subtitle">AIRPORT SAFETY SELF-INSPECTION CHECKLIST</div>
-    <div class="subnote">(FAA Part 139 – Daily Inspection)</div>
+    <div class="subnote">(FAA Part 139 -- Daily Inspection)</div>
 </div>
 
 {{-- META --}}
@@ -167,7 +241,7 @@
         <td class="value"><span class="linebox">{{ $val($overall) }}</span></td>
     </tr>
     <tr>
-        <td class="label">Inspection #:</td>
+        <td class="label">Insp #:</td>
         <td class="value"><span class="linebox">{{ $val($inspection->insp_number ?? null) }}</span></td>
 
         <td class="label">Inspector:</td>
@@ -178,7 +252,7 @@
     </tr>
 </table>
 
-{{-- TIME BLOCKS (centered headings + separators) --}}
+{{-- TIME BLOCKS --}}
 <table class="times">
     <tr>
         <th colspan="4" class="sep-right">Crash Phone Test</th>
@@ -237,11 +311,11 @@
                     <td class="col-item">{{ $item['label'] }}</td>
 
                     <td class="col-state">
-                        <span class="state-box {{ $isNA($am) ? 'na' : '' }}">{{ $printState($am) }}</span>
+                        <span class="state-box {{ $stateClass($am) }}">{{ $printState($am) }}</span>
                     </td>
 
                     <td class="col-state">
-                        <span class="state-box {{ $isNA($pm) ? 'na' : '' }}">{{ $printState($pm) }}</span>
+                        <span class="state-box {{ $stateClass($pm) }}">{{ $printState($pm) }}</span>
                     </td>
 
                     <td class="col-remarks">{{ $rm }}</td>
@@ -254,6 +328,11 @@
 {{-- FINDINGS --}}
 <div class="section-header">General Findings / Notes</div>
 <div class="notes">{{ $inspection->findings ?? '' }}</div>
+
+{{-- FOOTER --}}
+<div class="print-footer">
+    Generated by <span class="brand-clear">CLEAR</span><span class="brand-139">139</span> &middot; {{ now()->format('Y-m-d H:i') }}
+</div>
 
 </body>
 </html>

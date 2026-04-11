@@ -9,20 +9,67 @@
 
         body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #111; }
         .center { text-align: center; }
-        .title { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
-        .subnote { font-size: 10px; color: #444; margin-top: 2px; }
+
+        .brand-bar {
+            border-bottom: 2px solid #0E1520;
+            padding-bottom: 8px;
+            margin-bottom: 6px;
+        }
+        .brand-name {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #0E1520;
+        }
+        .title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            color: #0E1520;
+        }
+        .subnote { font-size: 10px; color: #64748B; margin-top: 2px; }
 
         table.meta { margin-top: 10px; width: 100%; border-collapse: collapse; }
         .meta td { padding: 3px 6px; vertical-align: middle; }
-        .meta .label { width: 14%; font-weight: 700; color: #222; }
-        .meta .value { border-bottom: 1px solid #bbb; }
+        .meta .label { width: 14%; font-weight: 700; color: #222; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+        .meta .value { border-bottom: 1px solid #CBD5E1; color: #334155; }
 
         table.logs { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.logs th, table.logs td { border: 1px solid #222; padding: 5px 6px; vertical-align: top; }
-        table.logs th { background: #f2f2f2; font-weight: 700; font-size: 10px; }
+        table.logs th {
+            background: #F8FAFC;
+            font-weight: 700;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748B;
+            border-bottom: 2px solid #E2E8F0;
+            padding: 6px;
+            text-align: left;
+        }
+        table.logs td {
+            border-bottom: 1px solid #E2E8F0;
+            padding: 5px 6px;
+            vertical-align: top;
+            font-size: 11px;
+        }
+        table.logs tr:hover { background: #F8FAFC; }
 
-        .small { font-size: 10px; color: #444; }
+        .small { font-size: 10px; color: #64748B; }
         .mono { font-family: DejaVu Sans Mono, monospace; font-size: 10px; }
+        .evt-label {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .evt-created, .evt-submitted, .evt-certified { background: #ECFDF5; color: #065F46; }
+        .evt-updated { background: #EFF6FF; color: #1E40AF; }
+        .evt-status_changed { background: #FFFBEB; color: #92400E; }
+        .evt-deleted { background: #FEF2F2; color: #991B1B; }
+        .evt-unlocked { background: #F8FAFC; color: #475569; }
     </style>
 </head>
 <body>
@@ -165,9 +212,23 @@
             default => class_basename((string)$type),
         };
     };
+
+    $evtClass = function($evt) {
+        return match ($evt) {
+            'created', 'submitted', 'certified' => 'evt-created',
+            'updated' => 'evt-updated',
+            'status_changed' => 'evt-status_changed',
+            'deleted' => 'evt-deleted',
+            'unlocked' => 'evt-unlocked',
+            default => 'evt-unlocked',
+        };
+    };
 @endphp
 
 <div class="center">
+    <div class="brand-bar">
+        <div class="brand-name">CLEAR139</div>
+    </div>
     <div class="title">AUDIT LOGS EXPORT</div>
     <div class="subnote">Generated: {{ now()->format('Y-m-d H:i:s') }}</div>
 </div>
@@ -195,7 +256,9 @@
     <tbody>
     @foreach($auditLogs as $log)
         <tr>
-            <td class="mono">{{ strtoupper(str_replace('_',' ', (string)$log->event)) }}</td>
+            <td>
+                <span class="evt-label {{ $evtClass($log->event) }}">{{ strtoupper(str_replace('_',' ', (string)$log->event)) }}</span>
+            </td>
 
             <td>
                 <div><b>{{ $labelType($log->auditable_type) }}</b></div>

@@ -14,7 +14,7 @@
     $sections = old('sections');
     if ($sections === null) $sections = $passAlong?->sections;
 
-    // ✅ HARD DEFAULT: 1 section + 1 row (prevents a bunch of empty rows)
+    // HARD DEFAULT: 1 section + 1 row (prevents a bunch of empty rows)
     if (empty($sections) || !is_array($sections)) {
         $sections = [
             [
@@ -26,7 +26,7 @@
         ];
     }
 
-    // ✅ Ensure each section has at least 1 row
+    // Ensure each section has at least 1 row
     foreach ($sections as $i => $sec) {
         if (!isset($sections[$i]['rows']) || !is_array($sections[$i]['rows']) || count($sections[$i]['rows']) === 0) {
             $sections[$i]['rows'] = [['label' => '', 'value' => '']];
@@ -48,76 +48,84 @@
 @endphp
 
 @if ($errors->any())
-    <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-        <div class="font-semibold">Fix the following:</div>
-        <ul class="mt-2 list-disc pl-5 space-y-1">
-            @foreach($errors->all() as $e)
-                <li>{{ $e }}</li>
-            @endforeach
-        </ul>
+    <div class="c139-card border-l-4 border-l-red-400 mb-6">
+        <div class="p-4">
+            <div class="font-semibold text-red-900">Fix the following:</div>
+            <ul class="mt-2 list-disc pl-5 text-sm text-red-800 space-y-1">
+                @foreach($errors->all() as $e)
+                    <li>{{ $e }}</li>
+                @endforeach
+            </ul>
+        </div>
     </div>
 @endif
 
 @if ($locked)
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        This record is locked/submitted. Editing is blocked.
+    <div class="c139-card border-l-4 border-l-amber-400 mb-6">
+        <div class="p-4 text-sm text-amber-900">
+            This record is locked/submitted. Editing is blocked.
+        </div>
     </div>
 @endif
 
 <div class="space-y-6">
 
     {{-- HEADER --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between gap-3">
+    <div class="c139-card">
+        <div class="panel-header">
             <div>
-                <div class="text-xs text-slate-500">AirportOps</div>
-                <div class="text-lg font-semibold text-slate-900">Daily Checklist & Pass-Along</div>
+                <span class="panel-header-label">DAILY CHECKLIST & PASS-ALONG</span>
+                <div class="font-mono text-[11px] text-slate-400 mt-0.5">AirportOps</div>
             </div>
-
-            <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold
-                {{ ($passAlong?->status ?? 'draft') === 'submitted' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700' }}">
-                {{ strtoupper($passAlong?->status ?? 'DRAFT') }}
-            </span>
+            @if($passAlong)
+                <x-badge variant="{{ ($passAlong->status ?? 'draft') === 'submitted' ? 'certified' : 'draft' }}">
+                    {{ strtoupper($passAlong->status ?? 'DRAFT') }}
+                </x-badge>
+            @else
+                <x-badge variant="draft">DRAFT</x-badge>
+            @endif
         </div>
 
-        <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="p-5 grid grid-cols-1 gap-4 md:grid-cols-4">
             <div>
-                <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Date</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                 <input type="date" name="date" value="{{ $value('date', now()->toDateString()) }}"
                        @disabled($locked)
-                       class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                       class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
             </div>
 
             <div class="md:col-span-2">
-                <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Specialist on Shift</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Specialist on Shift</label>
                 <input type="text" name="specialist_name" value="{{ $value('specialist_name') }}"
                        @disabled($locked)
                        placeholder="Name"
-                       class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                       class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
             </div>
 
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Start</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start</label>
                     <input type="time" name="shift_start_time" value="{{ $value('shift_start_time') }}"
                            @disabled($locked)
-                           class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                           class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                 </div>
                 <div>
-                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">End</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End</label>
                     <input type="time" name="shift_end_time" value="{{ $value('shift_end_time') }}"
                            @disabled($locked)
-                           class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                           class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                 </div>
             </div>
         </div>
     </div>
 
     {{-- DAILY TASK CHECKLIST --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="text-sm font-semibold text-slate-900">Daily Task Checklist</div>
+    <div class="c139-card">
+        <div class="panel-header">
+            <span class="panel-header-label">DAILY TASK CHECKLIST</span>
+        </div>
 
-        <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div class="p-5 grid grid-cols-1 gap-3 md:grid-cols-2">
             @php
                 $items = [
                     ['key'=>'am_part_139', 'label'=>'AM Part-139 Inspection'],
@@ -131,89 +139,94 @@
             @endphp
 
             @foreach($items as $i)
-                <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 hover:bg-slate-50">
+                <label class="flex items-center gap-3 rounded-lg border border-surface-border bg-white px-3 py-2.5 hover:bg-[#F8FAFC] cursor-pointer transition-colors">
                     <input type="hidden" name="{{ $i['key'] }}" value="0">
                     <input type="checkbox" name="{{ $i['key'] }}" value="1"
                            @checked($checked($i['key']))
                            @disabled($locked)
-                           class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                    <span class="text-sm text-slate-800">{{ $i['label'] }}</span>
+                           class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
+                    <span class="text-sm text-gray-800">{{ $i['label'] }}</span>
                 </label>
             @endforeach
         </div>
     </div>
 
     {{-- SIGNIFICANT ACTIVITY --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="text-sm font-semibold text-slate-900">Significant Activity / Watch Items</div>
-        <textarea name="significant_activity" rows="5"
-                  @disabled($locked)
-                  placeholder="What happened, what to watch, NOTAM/work order references, etc."
-                  class="mt-3 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900">{{ $value('significant_activity') }}</textarea>
+    <div class="c139-card">
+        <div class="panel-header">
+            <span class="panel-header-label">SIGNIFICANT ACTIVITY / WATCH ITEMS</span>
+        </div>
+
+        <div class="p-5">
+            <textarea name="significant_activity" rows="5"
+                      @disabled($locked)
+                      placeholder="What happened, what to watch, NOTAM/work order references, etc."
+                      class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">{{ $value('significant_activity') }}</textarea>
+        </div>
     </div>
 
     {{-- PASS ALONG ROWS --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-3">
+    <div class="c139-card">
+        <div class="panel-header">
             <div>
-                <div class="text-sm font-semibold text-slate-900">Pass Along (Pages 2–3)</div>
-                <div class="text-xs text-slate-500 mt-1">Add only what you need. No wasted space.</div>
+                <span class="panel-header-label">PASS ALONG (PAGES 2-3)</span>
+                <div class="font-mono text-[11px] text-slate-400 mt-0.5">Add only what you need. No wasted space.</div>
             </div>
         </div>
 
-        <div id="sections-root" class="mt-5 space-y-6">
+        <div id="sections-root" class="divide-y divide-surface-border">
             @foreach($sections as $sIndex => $section)
                 @php $rows = $section['rows'] ?? []; @endphp
 
-                <div class="section-block rounded-2xl border border-slate-200 overflow-hidden" data-section-index="{{ $sIndex }}">
-                    <div class="bg-slate-50 px-4 py-3 flex items-center justify-between gap-3">
+                <div class="section-block" data-section-index="{{ $sIndex }}">
+                    <div class="bg-[#F8FAFC] px-5 py-3 flex items-center justify-between gap-3 border-b border-surface-border">
                         <input type="text"
                                name="sections[{{ $sIndex }}][title]"
                                value="{{ $section['title'] ?? 'Pass Along' }}"
                                @disabled($locked)
-                               class="w-full rounded-md border-slate-300 text-sm font-semibold shadow-sm focus:border-slate-900 focus:ring-slate-900" />
-                        <div class="text-xs text-slate-500 whitespace-nowrap">Section {{ $sIndex + 1 }}</div>
+                               class="w-full rounded-lg border border-surface-border bg-white px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                        <div class="font-mono text-[11px] text-slate-400 whitespace-nowrap">Section {{ $sIndex + 1 }}</div>
                     </div>
 
-                    <div class="rows-wrap divide-y divide-slate-200">
+                    <div class="rows-wrap divide-y divide-gray-100">
                         @foreach($rows as $rIndex => $row)
                             @php
                                 $k = $rowAttKey($sIndex, $rIndex);
                                 $rowAtt = $attachmentsByRow->get($k, collect());
                             @endphp
 
-                            <div class="row-block p-4" data-row-index="{{ $rIndex }}">
+                            <div class="row-block p-5" data-row-index="{{ $rIndex }}">
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
                                     {{-- Item --}}
                                     <div class="md:col-span-3">
-                                        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Item</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
                                         <input type="text"
                                                name="sections[{{ $sIndex }}][rows][{{ $rIndex }}][label]"
                                                value="{{ $row['label'] ?? '' }}"
                                                @disabled($locked)
-                                               placeholder="Runway • ARFF • Weather • Ops Note…"
-                                               class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                                               placeholder="Runway / ARFF / Weather / Ops Note..."
+                                               class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                                     </div>
 
                                     {{-- Description --}}
                                     <div class="md:col-span-6">
-                                        <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Description</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                         <textarea
                                             name="sections[{{ $sIndex }}][rows][{{ $rIndex }}][value]"
                                             rows="2"
                                             @disabled($locked)
-                                            placeholder="Details / location / action taken / notifications…"
-                                            class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900">{{ $row['value'] ?? '' }}</textarea>
+                                            placeholder="Details / location / action taken / notifications..."
+                                            class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">{{ $row['value'] ?? '' }}</textarea>
                                     </div>
 
                                     {{-- Photo upload --}}
                                     <div class="md:col-span-3">
-                                        <div class="flex items-center justify-between gap-2">
-                                            <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Photo / File</label>
+                                        <div class="flex items-center justify-between gap-2 mb-1">
+                                            <label class="block text-sm font-medium text-gray-700">Photo / File</label>
 
                                             @unless($locked)
                                                 <button type="button"
-                                                        class="remove-row-btn text-xs font-semibold text-rose-700 hover:underline"
+                                                        class="remove-row-btn text-xs font-semibold text-red-600 hover:underline"
                                                         title="Remove this row">
                                                     Remove
                                                 </button>
@@ -225,8 +238,8 @@
                                                @disabled($locked)
                                                accept=".jpg,.jpeg,.png,.webp,.pdf"
                                                multiple
-                                               class="mt-1 block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-black" />
-                                        <div class="text-[11px] text-slate-500 mt-1">JPG/PNG/WEBP/PDF • up to 12MB each</div>
+                                               class="block w-full text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-black" />
+                                        <div class="font-mono text-[11px] text-slate-400 mt-1">JPG/PNG/WEBP/PDF up to 12MB each</div>
                                     </div>
                                 </div>
 
@@ -234,18 +247,18 @@
                                 @if($rowAtt->count())
                                     <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                         @foreach($rowAtt as $att)
-                                            <div class="rounded-xl border border-slate-200 p-3 flex items-start justify-between gap-3">
+                                            <div class="rounded-lg border border-surface-border p-3 flex items-start justify-between gap-3 bg-white">
                                                 <div class="min-w-0">
-                                                    <div class="text-xs font-semibold text-slate-900 truncate">{{ $att->original_name }}</div>
-                                                    <div class="text-[11px] text-slate-500">
+                                                    <div class="text-xs font-semibold text-gray-900 truncate">{{ $att->original_name }}</div>
+                                                    <div class="font-mono text-[11px] text-slate-400">
                                                         {{ strtoupper($att->mime ?? '') }}
-                                                        @if($att->size) • {{ number_format($att->size / 1024, 1) }} KB @endif
+                                                        @if($att->size) &middot; {{ number_format($att->size / 1024, 1) }} KB @endif
                                                     </div>
                                                 </div>
 
                                                 <div class="flex items-center gap-2">
                                                     <a href="{{ route('pass-alongs.attachments.download', [$passAlong, $att]) }}"
-                                                       class="text-xs font-semibold text-slate-900 hover:underline">
+                                                       class="text-xs font-semibold text-gray-900 hover:underline">
                                                         Download
                                                     </a>
 
@@ -254,7 +267,7 @@
                                                               onsubmit="return confirm('Delete this attachment?');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button class="text-xs font-semibold text-rose-700 hover:underline">Delete</button>
+                                                            <button class="text-xs font-semibold text-red-600 hover:underline">Delete</button>
                                                         </form>
                                                     @endunless
                                                 </div>
@@ -266,14 +279,14 @@
                         @endforeach
                     </div>
 
-                    <div class="px-4 py-3 bg-slate-50 flex items-center justify-between gap-3">
-                        <div class="text-xs text-slate-500">
-                            Tip: Keep “Item” short. Put the operational reality in “Description.”
+                    <div class="px-5 py-3 bg-[#F8FAFC] flex items-center justify-between gap-3 border-t border-surface-border">
+                        <div class="font-mono text-[11px] text-slate-400">
+                            Tip: Keep "Item" short. Put the operational reality in "Description."
                         </div>
 
                         @unless($locked)
                             <button type="button"
-                                    class="add-row-btn rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-black">
+                                    class="add-row-btn inline-flex items-center px-3 py-2 rounded-lg bg-gray-900 text-xs font-semibold text-white hover:bg-black shadow-sm">
                                 + Add Row
                             </button>
                         @endunless
@@ -287,31 +300,31 @@
 
 {{-- TEMPLATE for new rows (JS clones + rewrites indexes) --}}
 <template id="row-template">
-    <div class="row-block p-4" data-row-index="__R__">
+    <div class="row-block p-5" data-row-index="__R__">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
             <div class="md:col-span-3">
-                <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Item</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
                 <input type="text"
                        name="sections[__S__][rows][__R__][label]"
                        value=""
-                       placeholder="Runway • ARFF • Weather • Ops Note…"
-                       class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900" />
+                       placeholder="Runway / ARFF / Weather / Ops Note..."
+                       class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
             </div>
 
             <div class="md:col-span-6">
-                <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Description</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                     name="sections[__S__][rows][__R__][value]"
                     rows="2"
-                    placeholder="Details / location / action taken / notifications…"
-                    class="mt-1 w-full rounded-md border-slate-300 text-sm shadow-sm focus:border-slate-900 focus:ring-slate-900"></textarea>
+                    placeholder="Details / location / action taken / notifications..."
+                    class="w-full rounded-lg border border-surface-border bg-white px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></textarea>
             </div>
 
             <div class="md:col-span-3">
-                <div class="flex items-center justify-between gap-2">
-                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-600">Photo / File</label>
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Photo / File</label>
                     <button type="button"
-                            class="remove-row-btn text-xs font-semibold text-rose-700 hover:underline"
+                            class="remove-row-btn text-xs font-semibold text-red-600 hover:underline"
                             title="Remove this row">
                         Remove
                     </button>
@@ -321,8 +334,8 @@
                        name="row_attachments[__S__][__R__][]"
                        accept=".jpg,.jpeg,.png,.webp,.pdf"
                        multiple
-                       class="mt-1 block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-black" />
-                <div class="text-[11px] text-slate-500 mt-1">JPG/PNG/WEBP/PDF • up to 12MB each</div>
+                       class="block w-full text-sm text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-black" />
+                <div class="font-mono text-[11px] text-slate-400 mt-1">JPG/PNG/WEBP/PDF up to 12MB each</div>
             </div>
         </div>
     </div>
